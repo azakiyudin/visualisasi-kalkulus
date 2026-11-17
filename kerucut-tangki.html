@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tangki Kerucut</title><link rel="stylesheet" href="base.css">
+<style>@keyframes fwk{to{stroke-dashoffset:-32}}@keyframes rpk{0%{transform:scale(.3);opacity:.95}100%{transform:scale(1.5);opacity:0}}
+.fw{animation:fwk .35s linear infinite}.fw2{animation:fwk .22s linear infinite}.rp{transform-box:fill-box;transform-origin:center;animation:rpk .7s ease-out infinite}
+@media (prefers-reduced-motion:reduce){.fw,.fw2,.rp{animation:none}}</style></head>
+<body>
+<h1>Tangki air berbentuk kerucut</h1>
+<p class="s">Tangki kerucut (ujung di bawah) berjari-jari alas 10 m dan tinggi 24 m. Air mengalir masuk 20 m³/menit. Seberapa cepat kedalaman air bertambah saat kedalamannya 16 m?</p>
+<svg viewBox="0 0 520 400" id="sv" role="img" aria-label="Tangki kerucut berisi air">
+  <defs>
+    <pattern id="gp" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--mut)" stroke-opacity=".18"/></pattern>
+    <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5aa9ff"/><stop offset="1" stop-color="#2d6fd0"/></linearGradient>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker>
+  </defs>
+  <rect width="520" height="400" fill="var(--card)" rx="8"/><rect width="520" height="400" fill="url(#gp)" rx="8"/>
+  <polygon id="w" fill="url(#wg)" opacity=".9"/><ellipse id="we" fill="#9fd0ff" stroke="#2d6fd0" stroke-width="1.5"/>
+  <path d="M130,60 L260,370 L390,60" fill="none" stroke="var(--mut)" stroke-width="3" stroke-linejoin="round"/>
+  <ellipse cx="260" cy="60" rx="130" ry="26" fill="none" stroke="var(--mut)" stroke-width="3"/>
+  <line id="rr" stroke="var(--acc)" stroke-width="2.5"/><line id="hh" stroke="var(--acc)" stroke-width="2"/><line id="t1" stroke="var(--acc)" stroke-width="2"/><line id="t2" stroke="var(--acc)" stroke-width="2"/>
+  <path d="M470,12 H252 a8,8 0 0 1 8,8 V30" fill="none" stroke="#8a94a6" stroke-width="12" stroke-linecap="butt"/>
+  <path d="M470,12 H252 a8,8 0 0 1 8,8 V30" fill="none" stroke="#c9d1de" stroke-width="6"/>
+  <rect x="252" y="28" width="16" height="7" rx="2" fill="#6b7587"/>
+  <line id="s1" stroke="#4d9cf5" stroke-width="7" stroke-linecap="round" stroke-dasharray="9 7" class="fw"/>
+  <line id="s2" stroke="#d6ebff" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5 11" class="fw2"/>
+  <ellipse id="sp" class="rp" fill="none" stroke="#e8f4ff" stroke-width="2"/>
+</svg>
+<div class="row"><label for="h">\(h\) (m)</label><input type="range" id="h" min="1" max="24" step="0.1" value="16"><output id="vh"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Soal: h=16</button><span class="s" style="margin:0">Putar: debit tetap 20 m³/menit</span></div>
+<div class="g">
+  <div class="c"><span>\(r=\frac{5}{12}h\) (m)</span><b id="oR"></b></div>
+  <div class="c"><span>\(V=\frac{25\pi}{432}h^3\) (m³)</span><b id="oV"></b></div>
+  <div class="c"><span>\(\frac{dV}{dt}\) (m³/menit)</span><b>20</b></div>
+  <div class="c"><span>\(\frac{dh}{dt}\) (m/menit)</span><b id="oD"></b></div>
+</div>
+<p class="s" style="margin-top:12px">Kesebangunan: \(\frac{r}{h}=\frac{10}{24}\Rightarrow r=\frac{5}{12}h\). Maka \(V=\frac13\pi r^2h=\frac{25\pi}{432}h^3\) dan \(\frac{dV}{dt}=\frac{25\pi}{144}h^2\frac{dh}{dt}\).</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const S=13,AX=260,AY=370;
+lab('lh','h');lab('lr','r');lab('lq','\\frac{dV}{dt}=20');
+function draw(){
+  const h=+$('h').value,r=5*h/12,hw=r*S,yw=AY-h*S,dh=115.2/(Math.PI*h*h);
+  set('w',{points:`${AX},${AY} ${AX-hw},${yw} ${AX+hw},${yw}`});set('we',{cx:AX,cy:yw,rx:hw,ry:Math.max(2,hw*.2)});
+  set('rr',{x1:AX,y1:yw,x2:AX+hw,y2:yw});put('lr',AX+hw/2+8,yw+16);
+  set('hh',{x1:430,y1:yw,x2:430,y2:AY});set('t1',{x1:422,y1:yw,x2:438,y2:yw});set('t2',{x1:422,y1:AY,x2:438,y2:AY});
+  set('s1',{x1:260,y1:35,x2:260,y2:yw});set('s2',{x1:260,y1:35,x2:260,y2:yw});
+  set('sp',{cx:260,cy:yw,rx:26,ry:6});
+  put('lh',456,(yw+AY)/2);put('lq',420,46);
+  $('vh').textContent=h.toFixed(1);$('oR').textContent=r.toFixed(2);
+  $('oV').textContent=(25*Math.PI/432*h*h*h).toFixed(1);$('oD').textContent=dh.toFixed(4);
+  note(Math.abs(h-16)<.05
+    ?'Saat \\(h=16\\): \\(\\frac{25\\pi}{144}(256)\\frac{dh}{dt}=20\\Rightarrow\\frac{dh}{dt}=\\frac{9}{20\\pi}\\approx0{,}143\\) m/menit.'
+    :'Tekan "Soal" untuk kembali ke \\(h=16\\). Makin dalam air, makin lebar permukaannya, sehingga kedalaman bertambah makin lambat.');
+}
+const V=h=>25*Math.PI/432*h*h*h;
+const stop=play('p',V(1),V(24),12,u=>{$('h').value=Math.cbrt(432*u/(25*Math.PI));draw()},()=>V(+$('h').value));
+$('h').addEventListener('input',stop);
+$('z').onclick=()=>{stop();$('h').value=16;draw()};
+start(draw,['h']);
+</script>
+</body></html>

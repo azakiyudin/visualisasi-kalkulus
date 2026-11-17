@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kamera dan Roket</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Kamera memantau roket</h1>
+<p class="s" id="soal"></p>
+<div class="row"><button id="m0">Jarak kamera–roket</button><button id="m1">Sudut elevasi</button></div>
+<svg viewBox="0 0 520 390" id="sv" role="img" aria-label="Kamera 3000 m dari landasan memantau roket yang naik vertikal">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset="1" style="stop-color:var(--sky2)"/></linearGradient>
+  <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker></defs>
+  <rect width="520" height="390" fill="url(#sky)" rx="8"/>
+  <rect y="335" width="520" height="55" fill="var(--grass)"/><line x1="0" y1="335" x2="520" y2="335" class="gr"/>
+  <rect x="170" y="328" width="50" height="7" fill="var(--mut)"/>
+  <line id="tr" stroke="var(--mut)" stroke-width="2" stroke-dasharray="4 5"/>
+  <line id="lg" stroke="var(--fg)" stroke-width="2.5"/>
+  <line id="hy" stroke="var(--fg)" stroke-width="2.5" stroke-dasharray="7 5"/>
+  <path id="ar" fill="none" stroke="var(--acc)" stroke-width="2"/>
+  <g id="cam"><g stroke="var(--fg)" stroke-width="3" stroke-linecap="round"><line x1="0" y1="0" x2="-11" y2="12"/><line x1="0" y1="0" x2="11" y2="12"/><line x1="0" y1="0" x2="0" y2="12"/></g>
+    <g id="head"><rect x="-13" y="-8" width="26" height="16" rx="3" fill="#4a5568" stroke="var(--fg)" stroke-width="1.5"/><rect x="-9" y="-12" width="10" height="5" rx="1.5" fill="var(--lad)"/><rect x="13" y="-5.5" width="13" height="11" rx="2" fill="#2d3748" stroke="var(--fg)" stroke-width="1.5"/><circle cx="26" cy="0" r="4.8" fill="#7fc1ff" stroke="var(--fg)" stroke-width="1.5"/><circle cx="-6" cy="0" r="2" fill="#e53e3e"/></g><circle r="3" fill="var(--fg)"/></g>
+  <g id="rk"></g>
+  <line id="vy" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/><line id="vs" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+</svg>
+<div class="row"><label for="y">\(y\) (m)</label><input type="range" id="y" min="500" max="6000" step="10" value="4000"><output id="vv"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Reset</button></div>
+<div class="g">
+  <div class="c"><span>\(s=\sqrt{3000^2+y^2}\) (m)</span><b id="oS"></b></div>
+  <div class="c"><span>\(\theta\) (rad)</span><b id="oT"></b></div>
+  <div class="c"><span>\(\frac{dy}{dt}\) (m/det)</span><b id="oY"></b></div>
+  <div class="c"><span>\(\frac{ds}{dt}\) (m/det)</span><b id="oDs"></b></div>
+</div>
+<p class="s" style="margin-top:12px" id="der"></p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const CX=60,PX=195,GY=335,S=.045;let mode=0;
+lab('lb','3000\\ \\text{m}');lab('ly','y');lab('ls','s');lab('lt','\\theta');lab('lq','');lab('lr','');
+const SOAL=['Kamera berjarak 3000 m dari landasan peluncuran dan memantau roket yang naik vertikal. Dengan laju berapa jarak kamera–roket bertambah saat roket setinggi 4000 m dan naik 880 m/det? (Gambar 5.3(a) tidak termuat; dipakai asumsi buku acuan: kamera 3000 m dari landasan.)',
+ 'Untuk kamera dan roket yang sama, dengan laju berapa roket naik jika sudut elevasi \\(\\pi/4\\) rad dan bertambah dengan laju 0,2 rad/det?'];
+const DER=['\\(s^2=3000^2+y^2\\Rightarrow 2s\\frac{ds}{dt}=2y\\frac{dy}{dt}\\Rightarrow \\frac{ds}{dt}=\\frac{y}{s}\\frac{dy}{dt}\\).',
+ '\\(\\tan\\theta=\\frac{y}{3000}\\Rightarrow \\sec^2\\theta\\,\\frac{d\\theta}{dt}=\\frac{1}{3000}\\frac{dy}{dt}\\Rightarrow\\frac{dy}{dt}=3000\\sec^2\\theta\\,\\frac{d\\theta}{dt}\\).'];
+asset("rk","rocket");
+function setMode(m){mode=m;stop();$('soal').innerHTML=SOAL[m];$('der').innerHTML=DER[m];$('y').value=m?3000:4000;
+  $('m0').classList.toggle('on',!m);$('m1').classList.toggle('on',!!m);draw();rm($('soal'));rm($('der'))}
+function draw(){
+  const y=+$('y').value,s=Math.hypot(3000,y),th=Math.atan(y/3000);
+  const dth=mode?.2:3000*880/(s*s),dy=mode?3000*dth/Math.cos(th)**2:880,ds=y/s*dy;
+  const rx=PX,ry=GY-y*S;
+  set('cam',{transform:`translate(${CX},${GY-9})`});set('head',{transform:`rotate(${-th*180/Math.PI})`});set('rk',{transform:`translate(${rx},${ry})`});
+  set('tr',{x1:PX,y1:GY,x2:PX,y2:ry+26});set('lg',{x1:CX,y1:GY,x2:PX,y2:GY});
+  set('hy',{x1:CX,y1:GY-9,x2:rx,y2:ry});
+  set('ar',{d:`M${CX+38},${GY-9} A38 38 0 0 0 ${CX+38*Math.cos(th)},${GY-9-38*Math.sin(th)}`});
+  const hl=arrowLen(dy,.07,110)/2;
+  set('vy',{x1:rx+36,y1:ry+hl,x2:rx+36,y2:ry-hl});
+  const ux=(rx-CX)/Math.hypot(rx-CX,GY-9-ry),uy=(ry-GY+9)/Math.hypot(rx-CX,GY-9-ry),L=arrowLen(ds,.07,110)/2,mx=(CX+rx)/2-uy*18,my=(GY-9+ry)/2+ux*18;
+  set('vs',{x1:mx-ux*L,y1:my-uy*L,x2:mx+ux*L,y2:my+uy*L});
+  put('lb',(CX+PX)/2,GY+22);put('ly',PX-14,(GY+ry)/2);put('ls',(CX+rx)/2+uy*30-8,(GY-9+ry)/2-ux*30);put('lt',CX+62*Math.cos(th/2)+6,GY-9-62*Math.sin(th/2)+4);
+  put('lq',rx+(mode?78:100),ry);put('lr',mx-uy*36+4,my+ux*36);
+  setLab('lq','\\frac{dy}{dt}'+(mode?'':'=880'));setLab('lr','\\frac{ds}{dt}');
+  $('vv').textContent=y.toFixed(0);$('oS').textContent=s.toFixed(1);$('oT').textContent=th.toFixed(3);$('oY').textContent=dy.toFixed(1);$('oDs').textContent=ds.toFixed(1);
+  const hit=mode?Math.abs(th-Math.PI/4)<.012:Math.abs(y-4000)<12;
+  note(hit?(mode?'Saat \\(\\theta=\\frac\\pi4\\): \\(\\sec^2\\theta=2\\), sehingga \\(\\frac{dy}{dt}=3000\\cdot2\\cdot0{,}2=1200\\) m/det.'
+      :'Saat \\(y=4000\\): \\(s=5000\\), sehingga \\(\\frac{ds}{dt}=\\frac{4000}{5000}(880)=704\\) m/det.')
+    :'Tekan Reset untuk kembali ke keadaan pada soal. '+(mode?'Sudut bertambah tetap 0,2 rad/det, tetapi roket makin cepat naik.':'Roket naik tetap 880 m/det, tetapi laju \\(\\frac{ds}{dt}\\) makin mendekati 880 m/det.'));
+
+}
+let tm=null;
+function stop(){clearInterval(tm);tm=null;$('p').textContent='Putar'}
+$('p').onclick=()=>{
+  if(tm){stop();return}
+  $('p').textContent='Berhenti';let y=+$('y').value;if(y>=5900)y=500;let th=Math.atan(y/3000);
+  tm=setInterval(()=>{if(mode){th+=.004;y=3000*Math.tan(th)}else y+=13;
+    if(y>=6000){y=6000;stop()}$('y').value=y;draw()},30)};
+$('y').addEventListener('input',stop);$('z').onclick=()=>{stop();setMode(mode)};
+$('m0').onclick=()=>setMode(0);$('m1').onclick=()=>setMode(1);
+start(()=>{if(!window._i){window._i=1;setMode(0)}draw()},['y']);
+</script>
+</body></html>

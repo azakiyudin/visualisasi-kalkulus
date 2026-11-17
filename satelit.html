@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Satelit Mengorbit Bumi</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Satelit pada orbit elips</h1>
+<p class="s">Satelit mengorbit bumi dengan jarak \(r=\frac{4995}{1+0{,}12\cos\theta}\) mil dari pusat bumi, \(\theta\) diukur dari titik terdekat. Jari-jari bumi 3960 mil. (a) Tinggi satelit di perigee dan apogee. (b) Saat \(\theta=120^\circ\) dan bertambah 2,7°/menit, tentukan tinggi satelit dan lajunya (laju perubahan \(r\)) dalam mil/menit.</p>
+<svg viewBox="0 0 520 370" id="sv" role="img" aria-label="Orbit elips satelit mengelilingi bumi">
+  <defs><radialGradient id="eg" cx=".35" cy=".35"><stop offset="0" stop-color="#7fc1ff"/><stop offset="1" stop-color="#2d6fd0"/></radialGradient>
+  <clipPath id="ec"><circle id="ecc"/></clipPath>
+  <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker></defs>
+  <rect width="520" height="370" fill="#0b1530" rx="8"/>
+  <g id="stars" fill="#fff"></g>
+  <polyline id="orb" fill="none" stroke="#9db4e8" stroke-width="1.6" stroke-dasharray="5 5"/>
+  <circle id="ea" fill="url(#eg)"/>
+  <g clip-path="url(#ec)" fill="#4caf50" opacity=".9" id="ct"></g>
+  <line id="axl" stroke="#9db4e8" stroke-width="1" stroke-dasharray="2 4"/>
+  <path id="arc" fill="none" stroke="#ffd23f" stroke-width="2"/>
+  <line id="rl" stroke="#fff" stroke-width="2.5"/>
+  <g id="sat"><rect x="-4" y="-4" width="8" height="8" fill="#ddd" stroke="#fff"/><rect x="-16" y="-2.5" width="10" height="5" fill="#3f86d8" stroke="#fff" stroke-width=".8"/><rect x="6" y="-2.5" width="10" height="5" fill="#3f86d8" stroke="#fff" stroke-width=".8"/></g>
+  <line id="vr" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+  <circle id="pe" r="3.5" fill="#fff"/><circle id="ap" r="3.5" fill="#fff"/>
+</svg>
+<div class="row"><label for="t">\(\theta\) (derajat)</label><input type="range" id="t" min="0" max="360" step="1" value="120"><output id="vt"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Reset (θ=120°)</button><span class="s" style="margin:0">Putar: sudut bertambah tetap 2,7°/menit</span></div>
+<div class="g">
+  <div class="c"><span>\(r\) (mil)</span><b id="oR"></b></div>
+  <div class="c"><span>\(H=r-3960\) tinggi (mil)</span><b id="oH"></b></div>
+  <div class="c"><span>\(\frac{dr}{dt}\) (mil/menit)</span><b id="oD"></b></div>
+</div>
+<p class="s" style="margin-top:12px">(a) Perigee \(\theta=0\): \(r=\frac{4995}{1{,}12}\approx4459{,}82\), \(H\approx\mathbf{499{,}82}\) mil. Apogee \(\theta=180^\circ\): \(r=\frac{4995}{0{,}88}\approx5676{,}14\), \(H\approx\mathbf{1716{,}14}\) mil.<br>
+(b) \(\frac{dr}{dt}=\frac{4995\,(0{,}12\sin\theta)}{(1+0{,}12\cos\theta)^2}\frac{d\theta}{dt}\), dengan \(\frac{d\theta}{dt}=2{,}7^\circ=0{,}0471\) rad/menit.</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const CX=225,CY=195,S=.032,RE=3960,K=.9;
+lab('lt','\\theta','#ffd23f');lab('lr','r','#fff');lab('lq','\\frac{dr}{dt}','#ffb02e');lab('lpe','\\text{perigee}','#fff');lab('lap','\\text{apogee}','#fff');lab('lb','\\text{bumi}','#fff');
+(function(){let s='';for(let i=0;i<40;i++)s+=`<circle cx="${(i*137)%520}" cy="${(i*89+30)%370}" r="${i%3?.8:1.3}"/>`;$('stars').innerHTML=s;
+ set('ecc',{cx:CX,cy:CY,r:RE*S});set('ea',{cx:CX,cy:CY,r:RE*S});
+ $('ct').innerHTML=`<ellipse cx="${CX-30}" cy="${CY-45}" rx="38" ry="24"/><ellipse cx="${CX+45}" cy="${CY+30}" rx="30" ry="40"/><ellipse cx="${CX-55}" cy="${CY+55}" rx="26" ry="14"/>`;
+ let pts=[];for(let d=0;d<=360;d+=2){const a=d*Math.PI/180,r=4995/(1+.12*Math.cos(a))*S;pts.push((CX+r*Math.cos(a)).toFixed(1)+','+(CY-r*Math.sin(a)).toFixed(1))}
+ set('orb',{points:pts.join(' ')});
+ const rp=4995/1.12*S,ra=4995/.88*S;set('pe',{cx:CX+rp,cy:CY});set('ap',{cx:CX-ra,cy:CY});set('axl',{x1:CX-ra-8,y1:CY,x2:CX+rp+8,y2:CY});
+ put('lpe',CX+rp+30,CY+16);put('lap',CX-ra+10,CY+16);put('lb',CX,CY+RE*S*.0+8);
+})();
+function draw(){
+  const d=+$('t').value,a=d*Math.PI/180,r=4995/(1+.12*Math.cos(a)),dr=4995*.12*Math.sin(a)/(1+.12*Math.cos(a))**2*(2.7*Math.PI/180);
+  const px=CX+r*S*Math.cos(a),py=CY-r*S*Math.sin(a);
+  set('sat',{transform:`translate(${px},${py}) rotate(${-d+90})`});set('rl',{x1:CX,y1:CY,x2:px,y2:py});
+  const R=26,la=d>180?1:0;
+  set('arc',{d:d<1?'M0,0':`M${CX+R},${CY} A${R} ${R} 0 ${la} 0 ${CX+R*Math.cos(a)},${CY-R*Math.sin(a)}`});
+  put('lt',CX+(R+22)*Math.cos(a/2),CY-(R+22)*Math.sin(a/2));
+  put('lr',(CX+px)/2+Math.sin(a)*(r*S>RE*S+30?14:16),(CY+py)/2+Math.cos(a)*16);
+  const L=arrowLen(dr,K,90),ex=Math.cos(a),ey=-Math.sin(a);
+  set('vr',{x1:px+ex*8,y1:py+ey*8,x2:px+ex*(8+Math.abs(L)),y2:py+ey*(8+Math.abs(L)),opacity:Math.abs(dr)<.8?0:1});
+  if(dr<-.8)set('vr',{x1:px+ex*(8+Math.abs(L)),y1:py+ey*(8+Math.abs(L)),x2:px+ex*8,y2:py+ey*8});
+  $('lq').style.display=Math.abs(dr)<.8?'none':'';put('lq',px+ex*(8+Math.abs(L)/2)+Math.sin(a)*40,py+ey*(8+Math.abs(L)/2)+Math.cos(a)*40);
+  $('vt').textContent=d.toFixed(0)+'°';$('oR').textContent=r.toFixed(2);$('oH').textContent=(r-RE).toFixed(2);$('oD').textContent=dr.toFixed(2);
+  note(Math.abs(d-120)<.5?'Saat \\(\\theta=120^\\circ\\): \\(r=\\frac{4995}{0{,}94}\\approx5313{,}83\\), \\(H\\approx1353{,}83\\) mil, dan \\(\\frac{dr}{dt}=\\frac{4995(0{,}12)(0{,}866)}{(0{,}94)^2}(0{,}0471)\\approx27{,}68\\) mil/menit (satelit menjauh).'
+   :'Tekan Reset untuk kembali ke \\(\\theta=120^\\circ\\). Di perigee dan apogee \\(\\frac{dr}{dt}=0\\); antara perigee dan apogee satelit menjauh, setelah apogee mendekat.');
+}
+let tm=null;
+function stop(){clearInterval(tm);tm=null;$('p').textContent='Putar'}
+$('p').onclick=()=>{
+  if(tm){stop();return}
+  $('p').textContent='Berhenti';
+  tm=setInterval(()=>{let v=+$('t').value+.9;if(v>360)v-=360;$('t').value=v;draw()},30)};
+$('t').addEventListener('input',stop);$('z').onclick=()=>{stop();$('t').value=120;draw()};
+start(draw,['t']);
+</script>
+</body></html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Roket dan Radar</title><link rel="stylesheet" href="base.css">
+<style>
+:root{--sky1:#9fd0ff;--sky2:#e9f4ff;--grass:#8fc36f;--cloud:#fff;--body:#eef2f8}
+@media (prefers-color-scheme:dark){:root{--sky1:#07142b;--sky2:#1f3d66;--grass:#2c4a2c;--cloud:#8da2c0;--body:#d6dde8}}
+@keyframes fl{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.4)}}
+@keyframes sg{to{stroke-dashoffset:-16}}
+.fl{transform-box:fill-box;transform-origin:50% 0;animation:fl .16s infinite}
+#sl{stroke:var(--acc);stroke-width:3;stroke-dasharray:8 8;animation:sg .5s linear infinite}
+@media (prefers-reduced-motion:reduce){.fl,#sl{animation:none}}
+</style></head>
+<body>
+<h1>Roket dipantau stasiun radar</h1>
+<p class="s">Roket naik vertikal, radar berada 5 km dari landasan peluncuran. Saat tinggi roket 4 km, jarak roket ke radar bertambah 2000 km/jam. Seberapa cepat roket naik?</p>
+<svg viewBox="0 0 520 420" id="sv" role="img" aria-label="Roket naik, radar melacak">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset="1" style="stop-color:var(--sky2)"/></linearGradient></defs>
+  <rect width="520" height="420" fill="url(#sky)" rx="8"/>
+  <g fill="var(--cloud)" opacity=".85"><ellipse cx="400" cy="90" rx="38" ry="12"/><ellipse cx="425" cy="80" rx="24" ry="12"/><ellipse cx="110" cy="170" rx="34" ry="10"/><ellipse cx="132" cy="162" rx="20" ry="10"/><ellipse cx="450" cy="250" rx="30" ry="9"/></g>
+  <rect x="0" y="380" width="520" height="40" fill="var(--grass)"/><line x1="0" y1="380" x2="520" y2="380" class="gr"/>
+  <!-- landasan -->
+  <polygon points="195,380 235,380 228,372 202,372" fill="var(--mut)"/>
+  <!-- garis bantu -->
+  <line id="lh" class="d"/><line x1="80" y1="396" x2="215" y2="396" class="d"/>
+  <!-- sinyal radar -->
+  <line id="sl"/>
+  <!-- menara radar -->
+  <polygon points="70,380 90,380 84,368 76,368" fill="var(--mut)"/><rect x="77" y="356" width="6" height="14" fill="var(--mut)"/>
+  <g id="dish"><path d="M4,-13 Q-9,0 4,13" fill="none" stroke="var(--fg)" stroke-width="3.5" stroke-linecap="round"/><line x1="-1" y1="0" x2="12" y2="0" stroke="var(--fg)" stroke-width="2"/><circle cx="13" cy="0" r="2.6" fill="var(--lad)"/></g>
+  <!-- roket -->
+  <g id="rk"></g>
+  <text x="147" y="414" class="t" text-anchor="middle">5 km</text>
+  <text x="80" y="346" class="m" text-anchor="middle">radar</text>
+  <foreignObject id="th" width="100" height="32"><div class="lab">\(h\)</div></foreignObject>
+  <foreignObject id="ts" width="100" height="32"><div class="lab">\(s\)</div></foreignObject>
+</svg>
+<div class="row"><label for="h">\(h\) (km)</label><input type="range" id="h" min="0.5" max="12" step="0.05" value="4"><output id="vh"></output></div>
+<div class="row"><button id="p">Luncurkan</button><button id="z">Soal: h=4</button></div>
+<div class="g">
+  <div class="c"><span>\(s=\sqrt{25+h^2}\) (km)</span><b id="oS"></b></div>
+  <div class="c"><span>\(\frac{ds}{dt}\) (km/jam)</span><b>2000</b></div>
+  <div class="c"><span>\(\frac{dh}{dt}=\frac{s}{h}\cdot2000\) (km/jam)</span><b id="oD"></b></div>
+</div>
+<p class="s" style="margin-top:12px">\(s^2=25+h^2\;\Rightarrow\;2s\frac{ds}{dt}=2h\frac{dh}{dt}\;\Rightarrow\;\frac{dh}{dt}=\frac{s}{h}\frac{ds}{dt}\).</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const S=27,RX=80,GX=215,RY=366;asset("rk","rocket");
+function draw(){
+  const h=+$('h').value,s=Math.hypot(5,h),d=s/h*2000,ty=RY-h*S;
+  set('sl',{x1:RX,y1:RY,x2:GX,y2:ty});set('lh',{x1:GX,y1:RY,x2:GX,y2:ty});
+  set('rk',{transform:`translate(${GX},${ty})`});
+  set('dish',{transform:`translate(${RX},${RY}) rotate(${Math.atan2(ty-RY,GX-RX)*180/Math.PI}) scale(1.3)`});
+  put('th',GX+30,(RY+ty)/2);put('ts',(RX+GX)/2-20,(RY+ty)/2-12);
+  $('vh').textContent=h.toFixed(2);$('oS').textContent=s.toFixed(3);$('oD').textContent=d.toFixed(1);
+  note(Math.abs(h-4)<.03
+    ?'Saat \\(h=4\\): \\(s=\\sqrt{41}\\), sehingga \\(\\frac{dh}{dt}=\\frac{\\sqrt{41}}{4}(2000)=500\\sqrt{41}\\approx3201{,}6\\) km/jam.'
+    :'Tekan "Soal" untuk kembali ke \\(h=4\\). Makin rendah roket, makin besar \\(\\frac{s}{h}\\), sehingga roket harus naik makin cepat agar \\(s\\) tetap bertambah 2000 km/jam.');
+}
+let t=null;
+function stop(){clearInterval(t);t=null;$('p').textContent='Luncurkan'}
+$('p').onclick=()=>{
+  if(t){stop();return}
+  $('p').textContent='Berhenti';
+  if(+$('h').value>=11.9)$('h').value=.5;
+  // jarak s bertambah seragam (ds/dt konstan), h mengikuti
+  let s=Math.hypot(5,+$('h').value);
+  t=setInterval(()=>{s+=.05;let v=Math.sqrt(s*s-25);if(v>=12){v=12;stop()}$('h').value=v;draw()},30)};
+$('h').addEventListener('input',stop);
+$('z').onclick=()=>{stop();$('h').value=4;draw()};
+start(draw,['h']);
+</script>
+</body></html>

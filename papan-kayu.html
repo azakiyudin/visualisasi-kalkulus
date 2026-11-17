@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Papan Kayu Bersandar</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Papan kayu ditekan ke tembok</h1>
+<p class="s">Papan kayu sepanjang 10 m bersandar di tembok. Saat bagian bawah papan 2 m dari tembok, papan ditekan ke tembok dengan laju 6 m/det. Seberapa cepat sudut lancip yang dibuat papan dengan tanah bertambah?</p>
+<svg viewBox="0 0 520 330" id="sv" role="img" aria-label="Papan bersandar di tembok">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset="1" style="stop-color:var(--sky2)"/></linearGradient>
+  <pattern id="br" width="34" height="16" patternUnits="userSpaceOnUse"><rect width="34" height="16" fill="var(--wall2)"/><path d="M0 0H34M0 8H34M0 0V8M17 8V16" stroke="var(--wallln)" stroke-width="1.2" fill="none"/></pattern>
+  <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker></defs>
+  <rect width="520" height="330" fill="url(#sky)" rx="8"/>
+  <rect x="36" y="10" width="34" height="290" fill="url(#br)" stroke="var(--wallln)"/>
+  <rect y="300" width="520" height="30" fill="var(--grass)"/><line x1="0" y1="300" x2="520" y2="300" class="gr"/>
+  <line id="bd" stroke="var(--woodd)" stroke-width="11" stroke-linecap="round"/><line id="bd2" stroke="var(--wood)" stroke-width="7" stroke-linecap="round"/>
+  <path id="ar" fill="var(--acc)" fill-opacity=".25" stroke="var(--acc)" stroke-width="3"/>
+  <line id="dx" stroke="var(--acc)" stroke-width="2" stroke-dasharray="5 4"/>
+  <line id="vx" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+</svg>
+<div class="row"><label for="x">\(x\) (m)</label><input type="range" id="x" min="0.5" max="9.5" step="0.05" value="2"><output id="vx0"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Reset (x=2)</button></div>
+<div class="g">
+  <div class="c"><span>\(y=\sqrt{100-x^2}\) (m)</span><b id="oY"></b></div>
+  <div class="c"><span>\(\theta=\arccos\frac{x}{10}\) (rad)</span><b id="oT"></b></div>
+  <div class="c"><span>\(\frac{dx}{dt}\) (m/det)</span><b>-6</b></div>
+  <div class="c"><span>\(\frac{d\theta}{dt}=\frac{6}{y}\) (rad/det)</span><b id="oD"></b></div>
+</div>
+<p class="s" style="margin-top:12px">\(\cos\theta=\frac{x}{10}\Rightarrow-\sin\theta\frac{d\theta}{dt}=\frac{1}{10}\frac{dx}{dt}\Rightarrow\frac{d\theta}{dt}=-\frac{1}{10\sin\theta}\frac{dx}{dt}=-\frac{1}{y}\frac{dx}{dt}\) karena \(10\sin\theta=y\).</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const S=28,X0=70,Y0=300;
+manInit('man');lab('lt','\\theta');lab('lq','\\frac{dx}{dt}=-6');
+function draw(){
+  const x=+$('x').value,y=Math.sqrt(100-x*x),th=Math.acos(x/10),fx=X0+x*S,ty=Y0-y*S,R=34;
+  for(const id of ['bd','bd2'])set(id,{x1:X0+3,y1:ty,x2:fx,y2:Y0-3});
+  set('ar',{d:`M${fx-R},${Y0} A${R},${R} 0 0 1 ${fx-R*Math.cos(th)},${Y0-R*Math.sin(th)} L${fx},${Y0} Z`});
+  put('lt',fx-R*1.2*Math.cos(th/2)-4,Y0-R*1.2*Math.sin(th/2)-4);
+  const bh=fx-(31/(Y0-3-ty))*(fx-X0-3);
+  manPose('man',bh+16+8,Y0,x*2,1,1);
+  set('vx',{x1:fx+34,y1:Y0-96,x2:fx+4,y2:Y0-96});put('lq',fx+22,Y0-114);
+  $('vx0').textContent=x.toFixed(2);$('oY').textContent=y.toFixed(3);$('oT').textContent=th.toFixed(4);$('oD').textContent=(6/y).toFixed(4);
+  note(Math.abs(x-2)<.03?'Saat \\(x=2\\): \\(y=\\sqrt{96}=4\\sqrt6\\), sehingga \\(\\frac{d\\theta}{dt}=\\frac{6}{4\\sqrt6}=\\frac{\\sqrt6}{4}\\approx0{,}612\\) rad/det. Positif, jadi sudutnya bertambah.'
+    :'Tekan Reset untuk kembali ke \\(x=2\\). Makin dekat ke tembok, makin cepat sudutnya bertambah.');
+}
+let tm=null;
+function stop(){clearInterval(tm);tm=null;$('p').textContent='Putar'}
+$('p').onclick=()=>{
+  if(tm){stop();paused=true;return}
+  $('p').textContent='Berhenti';let v=paused?+$('x').value:9.5;paused=false;
+  tm=setInterval(()=>{v-=.05;if(v<=.5){v=.5;stop()}$('x').value=v;draw()},30)};
+let paused=false;
+$('x').addEventListener('input',()=>{stop();paused=false});$('z').onclick=()=>{stop();paused=false;$('x').value=2;draw()};
+start(draw,['x']);
+</script>
+</body></html>

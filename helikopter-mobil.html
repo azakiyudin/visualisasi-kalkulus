@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Helikopter dan Mobil</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Helikopter polisi mengejar mobil</h1>
+<p class="s">Helikopter terbang ke utara 100 mil/jam pada ketinggian tetap ½ mil. Di bawahnya sebuah mobil berjalan ke barat di jalan raya 75 mil/jam. Saat helikopter melintasi jalan raya, mobil berada 2 mil di sebelah timur helikopter. (a) Seberapa cepat jarak mobil–helikopter berubah saat itu? (b) Bertambah atau berkurang?</p>
+<svg viewBox="0 0 520 330" id="sv" role="img" aria-label="Pemandangan 3D: helikopter terbang ke utara di atas jalan raya, mobil melaju ke barat">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset=".28" style="stop-color:var(--sky2)"/></linearGradient>
+  <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker></defs>
+  <rect width="520" height="330" fill="url(#sky)" rx="8"/>
+  <polygon points="0,86 520,86 520,330 0,330" fill="var(--grass)"/>
+  <polygon id="rd" fill="#555"/><line id="rc" stroke="#fff" stroke-width="2" stroke-dasharray="14 10"/>
+  <line id="pa" stroke="var(--mut)" stroke-width="1.5" stroke-dasharray="3 6"/>
+  <polygon id="tri" fill="var(--lad)" fill-opacity=".18"/>
+  <line id="rho" stroke="var(--mut)" stroke-width="2" stroke-dasharray="5 5"/>
+  <line id="dp" stroke="var(--mut)" stroke-width="2" stroke-dasharray="5 5"/>
+  <ellipse id="sh" rx="12" ry="4" fill="#000" opacity=".3"/>
+  <g id="car"><rect x="-22" y="-14" width="44" height="14" rx="4" fill="var(--lad)" stroke="var(--fg)" stroke-width="1.5"/><rect x="-12" y="-22" width="22" height="9" rx="3" fill="#bfe3ff" stroke="var(--fg)"/><circle cx="-13" cy="0" r="4" fill="var(--fg)"/><circle cx="13" cy="0" r="4" fill="var(--fg)"/></g>
+  <line id="dl" stroke="var(--fg)" stroke-width="3"/>
+  <g id="hel"><line x1="-14" y1="3" x2="-38" y2="14" stroke="var(--fg)" stroke-width="3" stroke-linecap="round"/><line x1="-38" y1="6" x2="-38" y2="20" stroke="var(--fg)" stroke-width="2.5"/><ellipse rx="16" ry="9" fill="var(--body)" stroke="var(--fg)" stroke-width="1.5"/><ellipse cx="8" cy="-1" rx="5" ry="4" fill="#bfe3ff" stroke="var(--fg)"/><line x1="0" y1="-9" x2="0" y2="-13" stroke="var(--fg)" stroke-width="3"/><ellipse cy="-14" rx="34" ry="5" fill="none" stroke="var(--fg)" stroke-width="2.5"/><line x1="-10" y1="12" x2="14" y2="12" stroke="var(--fg)" stroke-width="2.5"/></g>
+  <line id="va" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/><line id="vb" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+</svg>
+<div class="row"><label for="t">\(t\) (detik)</label><input type="range" id="t" min="-70" max="70" step="1" value="0"><output id="vt"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Reset (t=0)</button><span class="s" style="margin:0">\(t=0\): helikopter tepat di atas jalan raya</span></div>
+<div class="g">
+  <div class="c"><span>\(x\) mobil dari jalur heli (mil)</span><b id="oX"></b></div>
+  <div class="c"><span>\(y\) heli di utara jalan (mil)</span><b id="oY"></b></div>
+  <div class="c"><span>\(D=\sqrt{x^2+y^2+\frac14}\) (mil)</span><b id="oD"></b></div>
+  <div class="c"><span>\(\frac{dD}{dt}\) (mil/jam)</span><b id="oDd"></b></div>
+</div>
+<p class="s" style="margin-top:12px">Segitiga siku-siku bergaris putus: kaki mendatar \(\sqrt{x^2+y^2}\) (jarak di tanah mobil ke titik di bawah helikopter) dan kaki tegak \(\frac12\). Maka \(D^2=x^2+y^2+\left(\tfrac12\right)^2\) dengan \(\frac{dx}{dt}=-75\), \(\frac{dy}{dt}=100\), sehingga \(D\frac{dD}{dt}=x\frac{dx}{dt}+y\frac{dy}{dt}\).</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const X0=130,Y0=240,S=80;
+const P=(X,Y,Z)=>[X0+S*(X+.5*Y),Y0-S*(.35*Y+Z)];
+const J=a=>a.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' ');
+lab('lx','x');lab('ly','y');lab('qa','\\frac{dy}{dt}=100');lab('qb','\\frac{dx}{dt}=-75');lab('lD','D');lab('lp','\\sqrt{x^2+y^2}');lab('lh','\\frac12');
+set('rd',{points:J([P(-2.4,-.3,0),P(6,-.3,0),P(6,.3,0),P(-2.4,.3,0)])});
+{const a=P(-2.4,0,0),b=P(6,0,0);set('rc',{x1:a[0],y1:a[1],x2:b[0],y2:b[1]})}
+{const a=P(0,-2.4,0),b=P(0,2.4,0);set('pa',{x1:a[0],y1:a[1],x2:b[0],y2:b[1]})}
+function draw(){
+  const t=+$('t').value,x=2-75*t/3600,y=100*t/3600,r=Math.hypot(x,y),D=Math.hypot(r,.5),Dd=(x*-75+y*100)/D;
+  const c=P(x,0,0),h=P(0,y,.5),g=P(0,y,0),o=P(0,0,0);
+  set('car',{transform:`translate(${c[0]},${c[1]+4})`});set('hel',{transform:`translate(${h[0]},${h[1]})`});set('sh',{cx:g[0],cy:g[1]});
+  set('tri',{points:J([c,g,h])});
+  set('rho',{x1:c[0],y1:c[1],x2:g[0],y2:g[1]});set('dp',{x1:g[0],y1:g[1],x2:h[0],y2:h[1]});set('dl',{x1:c[0],y1:c[1]-4,x2:h[0],y2:h[1]});
+  const dx=.819,dy=-.573,la=arrowLen(100,.5,70);
+  set('va',{x1:h[0]+dx*24,y1:h[1]+dy*24-6,x2:h[0]+dx*(24+la),y2:h[1]+dy*(24+la)-6});
+  const lb=arrowLen(75,.5,70);
+  set('vb',{x1:c[0]+6,y1:c[1]-32,x2:c[0]+6-lb,y2:c[1]-32});
+  put('qa',h[0]+dx*(24+la)+34,h[1]+dy*(24+la)-22);put('qb',c[0]+6-lb/2,c[1]-52);
+  put('lx',(o[0]+c[0])/2,(o[1]+c[1])/2+22);
+  put('ly',(o[0]+g[0])/2-26,(o[1]+g[1])/2);$('ly').style.display=Math.abs(y)<.3?'none':'';
+  put('lD',(c[0]+h[0])/2+(y>=0?-8:12),(c[1]+h[1])/2-20);
+  put('lh',g[0]+30,(g[1]+h[1])/2);
+  put('lp',(c[0]+g[0])/2,(c[1]+g[1])/2+20);$('lp').style.display=Math.abs(y)<.3?'none':'';
+  $('vt').textContent=t+' s';$('oX').textContent=x.toFixed(3);$('oY').textContent=y.toFixed(3);$('oD').textContent=D.toFixed(3);$('oDd').textContent=Dd.toFixed(2);
+  note(t===0?'Saat \\(t=0\\): \\(x=2,\\ y=0\\), \\(D=\\sqrt{4+\\tfrac14}=\\frac{\\sqrt{17}}2\\). \\(\\frac{dD}{dt}=\\frac{2(-75)+0\\cdot100}{\\sqrt{17}/2}=-\\frac{300}{\\sqrt{17}}\\approx-72{,}76\\) mil/jam. Negatif: jarak \\(\\mathbf{berkurang}\\).'
+   :'Tekan Reset untuk kembali ke \\(t=0\\). Sesudah helikopter menjauhi jalan, \\(y\\) membesar dan jarak akhirnya bertambah.');
+}
+let tm=null;
+function stop(){clearInterval(tm);tm=null;$('p').textContent='Putar'}
+$('p').onclick=()=>{
+  if(tm){stop();return}
+  $('p').textContent='Berhenti';if(+$('t').value>=69)$('t').value=-70;
+  tm=setInterval(()=>{let v=+$('t').value+1;if(v>=70){v=70;stop()}$('t').value=v;draw()},60)};
+$('t').addEventListener('input',stop);$('z').onclick=()=>{stop();$('t').value=0;draw()};
+start(draw,['t']);
+</script>
+</body></html>

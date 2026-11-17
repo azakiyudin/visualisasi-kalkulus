@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diagonal Persegi Panjang</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Diagonal persegi panjang</h1>
+<p class="s">Sisi \(x\) bertambah \(\frac12\) cm/det dan sisi \(y\) berkurang \(\frac14\) cm/det. Saat \(x=3\) cm dan \(y=4\) cm, bagaimana diagonal \(l\) berubah?</p>
+<svg viewBox="0 0 520 340" id="sv" role="img" aria-label="Persegi panjang dan diagonalnya">
+  <defs>
+    <pattern id="gp" x="80" y="300" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="var(--mut)" stroke-opacity=".2"/></pattern>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker>
+  </defs>
+  <rect width="520" height="340" fill="var(--card)" rx="8"/><rect width="520" height="340" fill="url(#gp)" rx="8"/>
+  <rect id="rc" fill="var(--fill)" fill-opacity=".75" stroke="var(--lad)" stroke-width="3" rx="2"/>
+  <line id="dg" stroke="var(--fg)" stroke-width="3.5" stroke-dasharray="9 5"/>
+  <circle id="c1" r="5" fill="var(--lad)"/><circle id="c2" r="5" fill="var(--lad)"/>
+  <line id="ax" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+  <line id="ay" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+  <line id="al" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+  <rect id="pl" width="26" height="22" rx="6" fill="var(--bg)" stroke="var(--fg)"/>
+  <foreignObject id="tl" width="100" height="32"><div class="lab" style="color:var(--fg)">\(l\)</div></foreignObject>
+  <foreignObject id="tx" width="100" height="32"><div class="lab">\(x\)</div></foreignObject>
+  <foreignObject id="ty" width="100" height="32"><div class="lab">\(y\)</div></foreignObject>
+  <foreignObject id="fx" width="100" height="32"><div class="lab">\(\frac{dx}{dt}=\frac12\)</div></foreignObject>
+  <foreignObject id="fy" width="100" height="32"><div class="lab">\(\frac{dy}{dt}=-\frac14\)</div></foreignObject>
+  <foreignObject id="fl" width="100" height="32"><div class="lab">\(\frac{dl}{dt}\)</div></foreignObject>
+  <text x="504" y="326" class="m" text-anchor="end">1 kotak = 1 cm</text>
+</svg>
+<div class="row"><label for="x">\(x\) (cm)</label><input type="range" id="x" min="1" max="8" step="0.05" value="3"><output id="vx"></output></div>
+<div class="row"><label for="y">\(y\) (cm)</label><input type="range" id="y" min="1" max="6" step="0.05" value="4"><output id="vy"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Soal: x=3, y=4</button><span class="s" style="margin:0">Putar: laju dianggap tetap</span></div>
+<div class="g">
+  <div class="c"><span>\(l=\sqrt{x^2+y^2}\) (cm)</span><b id="oL"></b></div>
+  <div class="c"><span>\(\frac{dl}{dt}\) (cm/det)</span><b id="oD"></b></div>
+  <div class="c"><span>diagonal</span><b id="oS"></b></div>
+</div>
+<p class="s" style="margin-top:12px">\(l^2=x^2+y^2\;\Rightarrow\;\frac{dl}{dt}=\frac{x\frac{dx}{dt}+y\frac{dy}{dt}}{l}=\frac{x/2-y/4}{l}\).</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const S=40,X0=80,Y0=300;
+function draw(){
+  const x=+$('x').value,y=+$('y').value,l=Math.hypot(x,y),d=(x/2-y/4)/l;
+  const px=X0+x*S,py=Y0-y*S,mx=(X0+px)/2,my=(Y0+py)/2,ux=x/l,uy=-y/l;
+  set('rc',{x:X0,y:py,width:x*S,height:y*S});
+  set('dg',{x1:X0,y1:Y0,x2:px,y2:py});set('c1',{cx:X0,cy:Y0});set('c2',{cx:px,cy:py});
+  // dx/dt = +1/2: sisi kanan bergeser ke kanan; dy/dt = -1/4: sisi atas bergeser ke bawah
+  set('ax',{x1:px+8,y1:my,x2:px+8+arrowLen(.5,90),y2:my});put('fx',px+8+arrowLen(.5,90)/2+8,my-22);
+  const ly=arrowLen(.25,90);
+  set('ay',{x1:px-24,y1:py-8-ly,x2:px-24,y2:py-8});put('fy',px-24-52,py-8-ly/2);
+  // dl/dt: searah diagonal; menjauh dari pangkal bila positif
+  const ll=arrowLen(d,200),tx0=px+ux*14,ty0=py+uy*14;
+  set('al',{x1:tx0,y1:ty0,x2:tx0+ux*ll,y2:ty0+uy*ll});
+  put('fl',tx0+ux*(Math.abs(ll)+34)+14,ty0+uy*(Math.abs(ll)+34)-4);
+  set('pl',{x:mx-13+(x>2?18:0),y:my-11-(x>2?0:18)});put('tl',mx+(x>2?18:0),my+(x>2?0:-18));
+  put('tx',mx,Y0+20);put('ty',X0-14,my);
+  $('vx').textContent=x.toFixed(2);$('vy').textContent=y.toFixed(2);
+  $('oL').textContent=l.toFixed(3);$('oD').textContent=d.toFixed(4);
+  $('oS').textContent=Math.abs(d)<1e-3?'tetap':sign(d);
+  note(Math.abs(x-3)<.03&&Math.abs(y-4)<.03
+    ?'Saat \\(x=3,\\ y=4\\): \\(l=5\\), sehingga \\(\\frac{dl}{dt}=\\frac{3(\\frac12)+4(-\\frac14)}{5}=\\frac{1}{10}\\) cm/det. Positif, jadi diagonal bertambah.'
+    :'Tekan "Soal" untuk kembali ke \\(x=3,\\ y=4\\). Tanda \\(\\frac{dl}{dt}\\) ditentukan oleh \\(2x-y\\): bertambah bila \\(y<2x\\). Panah biru: sisi \\(x\\) melebar ke kanan, sisi \\(y\\) menyusut ke bawah, diagonal \\(l\\) searah dirinya.');
+}
+const stop=play('p',-4,8,.05,u=>{$('x').value=3+.5*u;$('y').value=4-.25*u;draw()},()=>(+$('x').value-3)/.5);
+['x','y'].forEach(i=>$(i).addEventListener('input',stop));
+$('z').onclick=()=>{stop();$('x').value=3;$('y').value=4;draw()};
+start(draw,['x','y']);
+</script>
+</body></html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Balon Bulat</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Balon bulat</h1>
+<p class="s" id="soal"></p>
+<div class="row"><button id="m0">Balon dikembangkan</button><button id="m1">Balon digembosi</button></div>
+<svg viewBox="0 0 520 380" id="sv" role="img" aria-label="Balon bulat">
+  <defs><pattern id="gp" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--mut)" stroke-opacity=".18"/></pattern>
+  <radialGradient id="bg" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ff9a8a"/><stop offset=".6" stop-color="#d9412f"/><stop offset="1" stop-color="#8f1d12"/></radialGradient>
+  <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker></defs>
+  <rect width="520" height="380" fill="var(--card)" rx="8"/><rect width="520" height="380" fill="url(#gp)" rx="8"/>
+  <path id="kn" fill="#8f1d12"/><line id="tl" stroke="var(--mut)" stroke-width="2"/>
+  <circle id="bl" fill="url(#bg)" stroke="#8f1d12" stroke-width="2"/>
+  <ellipse id="hi" fill="#fff" opacity=".35"/>
+  <line id="rl" stroke="#fff" stroke-width="2.5"/><circle id="ci" r="3.5" fill="#fff"/>
+  <line id="ar1" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/><line id="ar2" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+</svg>
+<div class="row"><label for="r">\(r\) (cm)</label><input type="range" id="r" min="2" max="14" step="0.05" value="10"><output id="vr"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Reset</button></div>
+<div class="g">
+  <div class="c"><span>\(V=\frac43\pi r^3\) (cm³)</span><b id="oV"></b></div>
+  <div class="c"><span id="l1"></span><b id="o1"></b></div>
+  <div class="c"><span id="l2"></span><b id="o2"></b></div>
+</div>
+<p class="s" style="margin-top:12px">\(V=\frac43\pi r^3\Rightarrow\frac{dV}{dt}=4\pi r^2\frac{dr}{dt}\).</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const CX=260,CY=190,S=12;let mode=0;
+lab('lr','r','#fff');lab('lq','');$('lr').querySelector('.lab').style.cssText+=';text-shadow:0 0 3px #000,0 0 3px #000;font-size:17px;font-weight:700';
+const SOAL=['Balon bulat dikembangkan sehingga volumenya bertambah dengan laju 3 cm³/menit. Seberapa cepat diameter balon bertambah saat jari-jarinya 10 cm? (Satuan laju volume pada buku tertulis cm/menit; diperlakukan sebagai cm³/menit.)',
+ 'Balon bulat digembosi sehingga jari-jarinya berkurang dengan laju 15 cm/menit. Jika jari-jarinya 9 cm, berapa laju gerak udara (laju perubahan volume)?'];
+function setMode(m){
+  mode=m;stop();$('soal').textContent=SOAL[m];$('r').value=m?9:10;
+  $('l1').innerHTML=m?'\\(\\frac{dr}{dt}\\) (cm/menit)':'\\(\\frac{dV}{dt}\\) (cm³/menit)';
+  $('l2').innerHTML=m?'\\(\\frac{dV}{dt}=4\\pi r^2\\frac{dr}{dt}\\) (cm³/menit)':'\\(\\frac{d(2r)}{dt}=\\frac{3}{2\\pi r^2}\\) (cm/menit)';
+  $('lq').querySelector('.lab').innerHTML='\\('+(m?'\\frac{dr}{dt}=-15':'\\frac{dV}{dt}=3')+'\\)';
+  $('m0').classList.toggle('on',!m);$('m1').classList.toggle('on',!!m);
+  draw();rm($('soal'));rm(document.querySelector('.g'));rm($('lq'));
+}
+function draw(){
+  const r=+$('r').value,R=r*S,V=4/3*Math.PI*r**3;
+  set('bl',{cx:CX,cy:CY,r:R});set('hi',{cx:CX-R*.35,cy:CY-R*.4,rx:R*.18,ry:R*.1,transform:`rotate(-35 ${CX-R*.35} ${CY-R*.4})`});
+  set('kn',{d:`M${CX},${CY+R} l-7,10 h14 Z`});set('tl',{x1:CX,y1:CY+R+10,x2:CX+8,y2:CY+R+60});
+  set('rl',{x1:CX,y1:CY,x2:CX+R,y2:CY});set('ci',{cx:CX,cy:CY});put('lr',CX+R/2,CY-16);
+  const o=mode?-1:1;
+  set('ar1',{x1:CX-R-14*o,y1:CY,x2:CX-R-14*o-o*28,y2:CY});set('ar2',{x1:CX+R+14*o,y1:CY,x2:CX+R+14*o+o*28,y2:CY});
+  put('lq',CX+R+70,CY-40);
+  $('vr').textContent=r.toFixed(2);$('oV').textContent=V.toFixed(1);
+  if(mode){$('o1').textContent='-15';$('o2').textContent=(4*Math.PI*r*r*-15).toFixed(1)}
+  else{$('o1').textContent='3';$('o2').textContent=(3/(2*Math.PI*r*r)).toFixed(5)}
+  note(mode?(Math.abs(r-9)<.06?'Saat \\(r=9\\): \\(\\frac{dV}{dt}=4\\pi(81)(-15)=-4860\\pi\\approx-15\\,268\\) cm³/menit. Udara keluar \\(4860\\pi\\) cm³ tiap menit.':'Tekan Reset untuk kembali ke \\(r=9\\).')
+    :(Math.abs(r-10)<.06?'Saat \\(r=10\\): \\(3=4\\pi(100)\\frac{dr}{dt}\\Rightarrow\\frac{dr}{dt}=\\frac{3}{400\\pi}\\), sehingga diameter \\(2r\\) bertambah \\(\\frac{3}{200\\pi}\\approx0{,}0048\\) cm/menit.':'Tekan Reset untuk kembali ke \\(r=10\\). Makin besar balon, makin lambat jari-jarinya bertambah.'));
+}
+let tm=null;
+function stop(){clearInterval(tm);tm=null;$('p').textContent='Putar'}
+$('p').onclick=()=>{
+  if(tm){stop();return}
+  $('p').textContent='Berhenti';let r=+$('r').value,V=4/3*Math.PI*r**3;
+  if(mode&&r<=2.1)r=14;if(!mode&&r>=13.9)r=2;V=4/3*Math.PI*r**3;
+  tm=setInterval(()=>{if(mode)r-=.04;else{V+=6;r=Math.cbrt(3*V/(4*Math.PI))}
+    if(r<=2||r>=14){r=Math.min(14,Math.max(2,r));stop()}$('r').value=r;draw()},30)};
+$('r').addEventListener('input',stop);$('z').onclick=()=>{stop();setMode(mode)};
+$('m0').onclick=()=>setMode(0);$('m1').onclick=()=>setMode(1);
+start(()=>{if(!window._i){window._i=1;setMode(0)}draw()},['r']);
+</script>
+</body></html>

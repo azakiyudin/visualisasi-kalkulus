@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tumpukan Kerucut</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Tumpukan biji-bijian dan pasir</h1>
+<p class="s" id="soal"></p>
+<div class="row"><button id="m0">Soal biji-bijian</button><button id="m1">Soal pasir</button></div>
+<svg viewBox="0 0 520 380" id="sv" role="img" aria-label="Tumpukan berbentuk kerucut">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset="1" style="stop-color:var(--sky2)"/></linearGradient>
+    <pattern id="grain" width="16" height="14" patternUnits="userSpaceOnUse"><rect width="16" height="14" fill="#d3a03e"/><g stroke="#8f5f17" stroke-width=".7"><ellipse cx="3.5" cy="3" rx="3.2" ry="1.8" transform="rotate(-25 3.5 3)" fill="#f2c14e"/><ellipse cx="11.5" cy="2.5" rx="3.2" ry="1.8" transform="rotate(30 11.5 2.5)" fill="#e0a82d"/><ellipse cx="7.5" cy="7.5" rx="3.2" ry="1.8" transform="rotate(8 7.5 7.5)" fill="#f7d36a"/><ellipse cx="1.5" cy="11" rx="3.2" ry="1.8" transform="rotate(35 1.5 11)" fill="#e8b53b"/><ellipse cx="13.5" cy="10.5" rx="3.2" ry="1.8" transform="rotate(-30 13.5 10.5)" fill="#c98a2b"/></g></pattern>
+    <pattern id="sand" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#e0c88e"/><circle cx="1.5" cy="2" r=".9" fill="#b8975a"/><circle cx="6" cy="1" r=".7" fill="#f6e6b8"/><circle cx="8.5" cy="4.5" r="1" fill="#a98652"/><circle cx="3" cy="6" r=".8" fill="#f6e6b8"/><circle cx="5.5" cy="8.5" r=".9" fill="#b8975a"/><circle cx="9" cy="9" r=".6" fill="#8c6d3a"/><circle cx="1" cy="9" r=".6" fill="#f0dca8"/></pattern>
+    <linearGradient id="shade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></linearGradient>
+  </defs>
+  <rect width="520" height="380" fill="url(#sky)" rx="8"/>
+  <rect y="340" width="520" height="40" fill="var(--grass)"/><line x1="0" y1="340" x2="520" y2="340" class="gr"/>
+  <polygon points="240,20 360,20 330,56 270,56" fill="var(--mut)"/><text x="300" y="42" class="m" text-anchor="middle" style="fill:#fff">luncuran</text>
+
+  <ellipse id="pe" stroke="#8a672c" stroke-width="2"/><polygon id="pl" stroke="#8a672c" stroke-width="2" stroke-linejoin="round"/><polygon id="ps" fill="url(#shade)"/><g id="fp"></g>
+  <line id="hh" stroke="var(--acc)" stroke-width="2"/><line id="t1" stroke="var(--acc)" stroke-width="2"/><line id="t2" stroke="var(--acc)" stroke-width="2"/>
+</svg>
+<div class="row"><label for="h">\(h\) (m)</label><input type="range" id="h" min="1" max="14" step="0.1" value="6"><output id="vh"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Reset</button></div>
+<div class="g">
+  <div class="c"><span>\(r=\frac{h}{2}\) (m)</span><b id="oR"></b></div>
+  <div class="c"><span>\(V=\frac{\pi}{12}h^3\) (m³)</span><b id="oV"></b></div>
+  <div class="c"><span>\(\frac{dV}{dt}\) (m³/menit)</span><b id="oVd"></b></div>
+  <div class="c"><span>\(\frac{dh}{dt}\) (m/menit)</span><b id="oHd"></b></div>
+</div>
+<p class="s" style="margin-top:12px">Tinggi dua kali jari-jari (tinggi = diameter): \(r=\frac{h}{2}\). Maka \(V=\frac13\pi r^2h=\frac{\pi}{12}h^3\) dan \(\frac{dV}{dt}=\frac{\pi}{4}h^2\frac{dh}{dt}\).</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const S=18,BX=300,BY=340;let mode=0;
+lab('lh','h');lab('lq','');lab('lr','r');
+const SOAL=['Biji-bijian dituangkan dengan laju 8 m³/menit membentuk tumpukan kerucut dengan tinggi selalu dua kali jari-jarinya. Seberapa cepat tinggi tumpukan bertambah saat tingginya 6 m?',
+ 'Pasir dituangkan membentuk tumpukan kerucut dengan tinggi selalu sama dengan diameter. Jika tinggi bertambah dengan laju tetap 5 m/menit, dengan laju berapa pasir dituangkan saat tinggi tumpukan 10 m?'];
+function setMode(m){mode=m;stop();$('soal').textContent=SOAL[m];$('h').value=m?10:6;$('m0').classList.toggle('on',!m);$('m1').classList.toggle('on',!!m);
+  lab_q();draw();rm($('soal'))}
+function lab_q(){$('lq').querySelector('.lab').innerHTML='\\('+(mode?'\\frac{dh}{dt}=5':'\\frac{dV}{dt}=8')+'\\)';rm($('lq'))}
+function draw(){
+  const h=+$('h').value,r=h/2,hw=r*S,ty=BY-h*S;
+  const dV=mode?5*Math.PI*h*h/4:8,dh=mode?5:32/(Math.PI*h*h);
+  TY=ty;const pts=`${BX},${ty} ${BX-hw},${BY} ${BX+hw},${BY}`,fl=mode?'url(#sand)':'url(#grain)';
+  set('pl',{points:pts,fill:fl});set('ps',{points:pts});set('pe',{cx:BX,cy:BY,rx:hw,ry:Math.max(4,hw*.18),fill:fl});
+  set('hh',{x1:BX+hw+34,y1:ty,x2:BX+hw+34,y2:BY});set('t1',{x1:BX+hw+26,y1:ty,x2:BX+hw+42,y2:ty});set('t2',{x1:BX+hw+26,y1:BY,x2:BX+hw+42,y2:BY});
+  put('lh',BX+hw+60,(ty+BY)/2);put('lr',BX-hw/2,BY+22);put('lq',BX+90,40);
+  $('vh').textContent=h.toFixed(1);$('oR').textContent=r.toFixed(2);$('oV').textContent=(Math.PI/12*h**3).toFixed(1);
+  $('oVd').textContent=dV.toFixed(3);$('oHd').textContent=dh.toFixed(4);
+  note(mode?(Math.abs(h-10)<.05?'Saat \\(h=10\\): \\(\\frac{dV}{dt}=\\frac{\\pi}{4}(100)(5)=125\\pi\\approx392{,}7\\) m³/menit.':'Tekan Reset untuk kembali ke \\(h=10\\). Pasir yang dituang harus makin banyak agar tinggi tetap naik 5 m/menit.')
+    :(Math.abs(h-6)<.05?'Saat \\(h=6\\): \\(\\frac{\\pi}{4}(36)\\frac{dh}{dt}=8\\Rightarrow\\frac{dh}{dt}=\\frac{8}{9\\pi}\\approx0{,}283\\) m/menit.':'Tekan Reset untuk kembali ke \\(h=6\\). Makin tinggi tumpukan, makin lambat tingginya bertambah.'));
+}
+// butiran jatuh dari luncuran (biji-bijian besar, pasir halus dan lebih rapat)
+let TY=300;const NP=70,PT=[];
+(function(){let s='';for(let i=0;i<NP;i++)s+=`<ellipse id="pt${i}"/>`;$('fp').innerHTML=s;
+ for(let i=0;i<NP;i++)PT.push({e:$('pt'+i),x:Math.random()-.5,y:58+Math.random()*280,v:1.8+Math.random()*2,a:Math.random()*180,c:Math.random()})})();
+setInterval(()=>{
+  const gr=['#f2c14e','#e0a82d','#c98a2b','#f7d36a'],sd=['#e9d29a','#c9a566','#f3e3b5','#a98652'];
+  PT.forEach((p,i)=>{
+    p.y+=p.v*(mode?1.3:1);
+    if(p.y>=TY-2){p.y=58+Math.random()*8;p.x=Math.random()-.5}
+    const on=mode?true:i<26,w=mode?7:11,sp=(p.y-58)/260;
+    p.e.setAttribute('cx',BX+p.x*(w+sp*(mode?10:5)));p.e.setAttribute('cy',p.y);
+    p.e.setAttribute('rx',mode?1.3:3.4);p.e.setAttribute('ry',mode?1.3:1.9);
+    p.e.setAttribute('transform',`rotate(${p.a+p.y*3} ${BX+p.x*(w+sp*(mode?10:5))} ${p.y})`);
+    p.e.setAttribute('fill',(mode?sd:gr)[Math.floor(p.c*4)]);p.e.setAttribute('stroke',mode?'none':'#8f5f17');p.e.setAttribute('stroke-width',.6);
+    p.e.setAttribute('visibility',on&&p.y<TY-2?'visible':'hidden')});
+},30);
+let tm=null;
+function stop(){clearInterval(tm);tm=null;$('p').textContent='Putar'}
+$('p').onclick=()=>{
+  if(tm){stop();return}
+  $('p').textContent='Berhenti';let h=+$('h').value;if(h>=13.9)h=1;
+  let V=Math.PI/12*h**3;
+  tm=setInterval(()=>{if(mode)h+=.04;else{V+=1.2;h=Math.cbrt(12*V/Math.PI)}
+    if(h>=14){h=14;stop()}$('h').value=h;draw()},30)};
+$('h').addEventListener('input',stop);$('z').onclick=()=>{stop();setMode(mode)};
+$('m0').onclick=()=>setMode(0);$('m1').onclick=()=>setMode(1);
+start(()=>{if(!window._i){window._i=1;setMode(0)}draw()},['h']);
+</script>
+</body></html>

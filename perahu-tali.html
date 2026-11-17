@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Perahu Ditarik Tali</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Perahu ditarik ke dok</h1>
+<p class="s" id="soal"></p>
+<div class="row"><button id="m0">Tali ditarik 20 m/menit</button><button id="m1">Perahu mendekat 12 m/menit</button></div>
+<svg viewBox="0 0 520 250" id="sv" role="img" aria-label="Perahu ditarik dengan tali lewat kerekan">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset="1" style="stop-color:var(--sky2)"/></linearGradient>
+  <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker></defs>
+  <rect width="520" height="250" fill="url(#sky)" rx="8"/>
+  <rect y="170" width="520" height="80" fill="#2d6fd0" opacity=".7"/>
+  <rect x="0" y="130" width="70" height="120" fill="var(--wall2)" stroke="var(--wallln)"/>
+  <line x1="60" y1="130" x2="60" y2="100" stroke="var(--fg)" stroke-width="4"/><circle cx="60" cy="98" r="6" fill="var(--fg)"/>
+  <line id="rope" stroke="var(--woodd)" stroke-width="2.5"/>
+  <g id="boat"><path d="M-24,0 L24,0 L16,16 L-16,16 Z" fill="var(--lad)" stroke="var(--fg)" stroke-width="1.5"/><line x1="0" y1="0" x2="0" y2="-26" stroke="var(--fg)" stroke-width="2"/><polygon points="0,-26 0,-6 14,-6" fill="var(--body)" stroke="var(--fg)"/></g>
+  <line id="vx" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/><line id="vs" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+  <line id="hh" stroke="var(--acc)" stroke-width="2"/><line id="xx" stroke="var(--acc)" stroke-width="2"/>
+</svg>
+<div class="row"><label for="s">\(s\) (m)</label><input type="range" id="s" min="10.5" max="130" step="0.1" value="125"><output id="vv"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Reset (s=125)</button></div>
+<div class="g">
+  <div class="c"><span>\(x=\sqrt{s^2-100}\) (m)</span><b id="oX"></b></div>
+  <div class="c"><span>\(\frac{ds}{dt}\) (m/menit)</span><b id="oS"></b></div>
+  <div class="c"><span>\(\frac{dx}{dt}\) (m/menit)</span><b id="oD"></b></div>
+</div>
+<p class="s" style="margin-top:12px">Tali dari kerekan ke haluan: \(s^2=x^2+10^2\Rightarrow s\frac{ds}{dt}=x\frac{dx}{dt}\), jadi \(\frac{dx}{dt}=\frac{s}{x}\frac{ds}{dt}\).</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const S=3.2,DX=60,WY=170,PY=98;let mode=0;
+lab('lx','x');lab('lh','10\\ \\text{m}');lab('ls','s');lab('qa','');lab('qb','');
+const SOAL=['Perahu ditarik ke dok dengan tali melalui kerekan di atas dok. Tali dikaitkan pada haluan, 10 m di bawah kerekan. Jika tali ditarik melalui kerekan dengan laju 20 m/menit, dengan laju berapa perahu mendekati dok saat tali yang keluar 125 m?',
+ 'Untuk perahu yang sama, berapa cepat tali harus ditarik agar perahu mendekati dok dengan laju 12 m/menit saat tali yang keluar 125 m?'];
+function setMode(m){mode=m;stop();$('soal').textContent=SOAL[m];$('s').value=125;
+  $('m0').classList.toggle('on',!m);$('m1').classList.toggle('on',!!m);draw();rm($('soal'))}
+function draw(){
+  const s=+$('s').value,x=Math.sqrt(s*s-100),ds=mode?-12*x/s:-20,dx=mode?-12:-20*s/x;
+  const bx=DX+x*S;
+  set('boat',{transform:`translate(${bx},${WY-8})`});set('rope',{x1:DX,y1:PY,x2:bx-20,y2:WY-8});
+  set('hh',{x1:DX-14,y1:PY,x2:DX-14,y2:WY-8});set('xx',{x1:DX,y1:WY+28,x2:bx,y2:WY+28});
+  set('vx',{x1:bx+34,y1:WY+24,x2:bx+4,y2:WY+24});
+  {const vx0=DX-(bx-20),vy0=PY-(WY-8),L=Math.hypot(vx0,vy0),ux=vx0/L,uy=vy0/L,mx=(DX+bx-20)/2+uy*10,my=(PY+WY-8)/2-ux*10;
+   set('vs',{x1:mx-ux*14,y1:my-uy*14,x2:mx+ux*14,y2:my+uy*14});}
+  put('lx',(DX+bx)/2,WY+46);put('lh',24,(PY+WY)/2);put('ls',(DX+bx)/2,(PY+WY)/2-34);
+  put('qa',bx-4,WY+46);put('qb',(DX+bx)/2+60,(PY+WY)/2-30);
+  setLab('qa','\\frac{dx}{dt}='+(mode?'-12':'-\\frac{s}{x}\\cdot20'));
+  $('vv').textContent=s.toFixed(1);$('oX').textContent=x.toFixed(2);$('oS').textContent=ds.toFixed(3);$('oD').textContent=dx.toFixed(3);
+  note(Math.abs(s-125)<.15
+    ?(mode?'Saat \\(s=125\\): \\(x=15\\sqrt{69}\\approx124{,}6\\). \\(\\frac{ds}{dt}=\\frac{x}{s}\\frac{dx}{dt}=\\frac{15\\sqrt{69}}{125}(-12)=-\\frac{36\\sqrt{69}}{25}\\approx-11{,}96\\) m/menit (tali ditarik).'
+        :'Saat \\(s=125\\): \\(x=15\\sqrt{69}\\approx124{,}6\\). \\(\\frac{dx}{dt}=\\frac{125}{15\\sqrt{69}}(-20)=-\\frac{500}{3\\sqrt{69}}\\approx-20{,}06\\) m/menit. Perahu mendekat sedikit lebih cepat dari tali ditarik.')
+    :'Tekan Reset untuk kembali ke \\(s=125\\). Gambar berskala nyata: kerekan hanya 10 m di atas haluan, jadi tali hampir datar.');
+
+}
+let tm=null;
+function stop(){clearInterval(tm);tm=null;$('p').textContent='Putar'}
+$('p').onclick=()=>{
+  if(tm){stop();return}
+  $('p').textContent='Berhenti';let s=+$('s').value;if(s<=11)s=130;let x=Math.sqrt(s*s-100);
+  tm=setInterval(()=>{if(mode){x-=.5;s=Math.hypot(x,10)}else s-=.5;
+    if(s<=10.8){s=10.8;stop()}$('s').value=s;draw()},30)};
+$('s').addEventListener('input',stop);$('z').onclick=()=>{stop();setMode(mode)};
+$('m0').onclick=()=>setMode(0);$('m1').onclick=()=>setMode(1);
+start(()=>{if(!window._i){window._i=1;setMode(0)}draw()},['s']);
+</script>
+</body></html>

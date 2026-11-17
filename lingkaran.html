@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Riak Kolam dan Tumpahan Minyak</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Lingkaran yang melebar</h1>
+<p class="s" id="soal"></p>
+<div class="row"><button id="m0">Riak kolam</button><button id="m1">Tumpahan minyak</button></div>
+<svg viewBox="0 0 520 380" id="sv" role="img" aria-label="Lingkaran yang melebar dilihat dari atas">
+  <defs><radialGradient id="wt"><stop offset="0" stop-color="#7fc1ff"/><stop offset="1" stop-color="#3f86d8"/></radialGradient>
+  <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker></defs>
+  <rect width="520" height="380" fill="url(#wt)" rx="8"/>
+  <g id="rg" fill="none" stroke="#fff"></g>
+  <circle id="ob" fill="#1b1b1b" fill-opacity=".85" stroke="#000"/>
+  <circle id="ci" fill="var(--acc)" r="4"/>
+  <line id="rl" stroke="#fff" stroke-width="2.5"/>
+</svg>
+<div class="row"><label for="t" id="lt"></label><input type="range" id="t" min="0.1" max="12" step="0.05" value="10"><output id="vt"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Reset</button></div>
+<div class="g">
+  <div class="c"><span>\(r\) (<span id="ur"></span>)</span><b id="oR"></b></div>
+  <div class="c"><span>\(A=\pi r^2\) (<span id="ua"></span>)</span><b id="oA"></b></div>
+  <div class="c"><span id="lq1"></span><b id="oQ1"></b></div>
+  <div class="c"><span id="lq2"></span><b id="oQ2"></b></div>
+</div>
+<p class="s" style="margin-top:12px">\(A=\pi r^2\Rightarrow\frac{dA}{dt}=2\pi r\frac{dr}{dt}\).</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const CX=260,CY=190;let mode=0;
+lab('lr','r','#fff');lab('lq','','#fff');
+const SOAL=['Batu dijatuhkan ke kolam tenang dan menghasilkan riak lingkaran yang jari-jarinya bertambah dengan laju 3 m/det. Seberapa cepat luas daerah yang tertutup riak bertambah pada akhir 10 detik?',
+ 'Minyak memancar dari tanker bocor dan menyebar dalam lingkaran yang luasnya bertambah dengan laju tetap 6 km²/jam. Seberapa cepat jari-jari tumpahan bertambah saat luasnya 9 km²?'];
+function setMode(m){
+  mode=m;stop();$('soal').textContent=SOAL[m];
+  $('t').min=m?.1:.1;$('t').max=m?3.3:12;$('t').value=m?1.5:10;
+  $('lt').textContent=m?'t (jam)':'t (det)';$('ur').textContent=m?'km':'m';$('ua').textContent=m?'km²':'m²';
+  $('lq1').innerHTML=m?'\\(\\frac{dA}{dt}\\) (km²/jam)':'\\(\\frac{dr}{dt}\\) (m/det)';
+  $('lq2').innerHTML=m?'\\(\\frac{dr}{dt}=\\frac{3}{\\pi r}\\) (km/jam)':'\\(\\frac{dA}{dt}=6\\pi r\\) (m²/det)';
+  $('m0').classList.toggle('on',!m);$('m1').classList.toggle('on',!!m);
+  $('lq').querySelector('.lab').innerHTML='\\('+(m?'\\frac{dA}{dt}=6':'\\frac{dr}{dt}=3')+'\\)';
+  draw();rm($('soal'));rm(document.querySelector('.g'));rm($('lq'));
+}
+function draw(){
+  const t=+$('t').value;let r,A,q1,q2,S;
+  if(mode){A=6*t;r=Math.sqrt(A/Math.PI);S=60;q1=6;q2=3/(Math.PI*r)}
+  else{r=3*t;A=Math.PI*r*r;S=5;q1=3;q2=6*Math.PI*r}
+  let g='';
+  if(!mode)for(let k=0;k<=6;k++){const rr=r-k*3;if(rr>0)g+=`<circle cx="${CX}" cy="${CY}" r="${rr*S}" stroke-opacity="${(.95-k*.12).toFixed(2)}" stroke-width="${k?2:3}"/>`}
+  $('rg').innerHTML=g;
+  set('ob',{cx:CX,cy:CY,r:mode?r*S:0});set('ci',{cx:CX,cy:CY});
+  set('rl',{x1:CX,y1:CY,x2:CX+r*S,y2:CY});put('lr',CX+r*S/2,CY-18);put('lq',CX,Math.min(CY+r*S+24,362));
+  $('vt').textContent=t.toFixed(2);$('oR').textContent=r.toFixed(3);$('oA').textContent=A.toFixed(2);
+  $('oQ1').textContent=q1;$('oQ2').textContent=q2.toFixed(3);
+  note(mode?(Math.abs(A-9)<.15?'Saat \\(A=9\\): \\(r=\\frac{3}{\\sqrt\\pi}\\), sehingga \\(\\frac{dr}{dt}=\\frac{6}{2\\pi r}=\\frac{1}{\\sqrt\\pi}\\approx0{,}564\\) km/jam.':'Tekan Reset untuk kembali ke \\(A=9\\). Makin besar tumpahan, makin lambat jari-jarinya bertambah.')
+    :(Math.abs(t-10)<.06?'Pada \\(t=10\\): \\(r=30\\) m, sehingga \\(\\frac{dA}{dt}=2\\pi(30)(3)=180\\pi\\approx565{,}5\\) m²/det.':'Tekan Reset untuk kembali ke \\(t=10\\). Jari-jari bertambah tetap 3 m/det, tetapi luasnya makin cepat bertambah.'));
+}
+let tm=null;
+function stop(){clearInterval(tm);tm=null;$('p').textContent='Putar'}
+$('p').onclick=()=>{
+  if(tm){stop();return}
+  $('p').textContent='Berhenti';let v=+$('t').value;if(v>=+$('t').max-.05)v=.1;
+  tm=setInterval(()=>{v+=(mode?.02:.06);if(v>=+$('t').max){v=+$('t').max;stop()}$('t').value=v;draw()},30)};
+$('t').addEventListener('input',stop);$('z').onclick=()=>{stop();setMode(mode)};
+$('m0').onclick=()=>setMode(0);$('m1').onclick=()=>setMode(1);
+start(()=>{if(!window._i){window._i=1;setMode(0)}draw()},['t']);
+</script>
+</body></html>

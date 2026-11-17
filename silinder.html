@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Volume Silinder</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Volume silinder</h1>
+<p class="s">Tinggi \(h\) bertambah 1 cm/det, jari-jari \(r\) berkurang 1 cm/det. Saat \(h=6\) cm dan \(r=10\) cm, bagaimana volume berubah?</p>
+<svg viewBox="0 0 520 320" id="sv" role="img" aria-label="Silinder">
+  <defs>
+    <pattern id="gp" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--mut)" stroke-opacity=".18"/></pattern>
+    <linearGradient id="cg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--m1)"/><stop offset=".3" style="stop-color:var(--m2)"/><stop offset=".75" style="stop-color:var(--m3)"/><stop offset="1" style="stop-color:var(--m1)"/></linearGradient>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker>
+  </defs>
+  <rect width="520" height="320" fill="var(--card)" rx="8"/><rect width="520" height="320" fill="url(#gp)" rx="8"/>
+  <ellipse id="sh" fill="#000" opacity=".12"/>
+  <path id="bp" fill="url(#cg)" stroke="var(--mut)" stroke-width="2" stroke-linejoin="round"/>
+  <ellipse id="et" fill="var(--m2)" stroke="var(--mut)" stroke-width="2"/>
+  <line id="lr" stroke="var(--acc)" stroke-width="2.5"/><circle id="cr" r="3.5" fill="var(--acc)"/>
+  <line id="lh" stroke="var(--acc)" stroke-width="2"/>
+  <line id="g1" stroke="var(--acc)" stroke-width="2"/><line id="g2" stroke="var(--acc)" stroke-width="2"/>
+  <line id="aU" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+  <line id="aL" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/><line id="aR" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+  <foreignObject id="tr" width="100" height="32"><div class="lab">\(r\)</div></foreignObject>
+  <foreignObject id="th" width="100" height="32"><div class="lab">\(h\)</div></foreignObject>
+  <foreignObject id="fU" width="100" height="32"><div class="lab">\(\frac{dh}{dt}=1\)</div></foreignObject>
+  <foreignObject id="fR" width="100" height="32"><div class="lab">\(\frac{dr}{dt}=-1\)</div></foreignObject>
+</svg>
+<div class="row"><label for="h">\(h\) (cm)</label><input type="range" id="h" min="2" max="12" step="0.1" value="6"><output id="vh"></output></div>
+<div class="row"><label for="r">\(r\) (cm)</label><input type="range" id="r" min="2" max="14" step="0.1" value="10"><output id="vr"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Soal: h=6, r=10</button><span class="s" style="margin:0">Putar: laju dianggap tetap</span></div>
+<div class="g">
+  <div class="c"><span>\(V=\pi r^2h\) (cm³)</span><b id="oV"></b></div>
+  <div class="c"><span>\(\frac{dV}{dt}\) (cm³/det)</span><b id="oD"></b></div>
+  <div class="c"><span>volume</span><b id="oS"></b></div>
+</div>
+<p class="s" style="margin-top:12px">\(V=\pi r^2h\;\Rightarrow\;\frac{dV}{dt}=\pi\left(2rh\frac{dr}{dt}+r^2\frac{dh}{dt}\right)=\pi\,(r^2-2rh)\) karena \(\frac{dr}{dt}=-1,\ \frac{dh}{dt}=1\).</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const S=12,cx=250,by=255;
+function draw(){
+  const h=+$('h').value,r=+$('r').value,w=r*S,hh=h*S,ty=by-hh,ry=Math.max(6,w*.28);
+  set('sh',{cx:cx+10,cy:by+6,rx:w+10,ry:ry});
+  set('et',{cx,cy:ty,rx:w,ry});
+  set('bp',{d:`M${cx-w},${ty} L${cx-w},${by} A${w},${ry} 0 0 0 ${cx+w},${by} L${cx+w},${ty} Z`});
+  set('lr',{x1:cx,y1:ty,x2:cx+w,y2:ty});put('tr',cx+w/2,ty-14);
+  set('cr',{cx,cy:ty});
+  set('g1',{x1:cx+w+49,y1:ty,x2:cx+w+63,y2:ty});set('g2',{x1:cx+w+49,y1:by,x2:cx+w+63,y2:by});
+  set('lh',{x1:cx+w+56,y1:ty,x2:cx+w+56,y2:by});put('th',cx+w+72,(ty+by)/2);
+  set('aU',{x1:cx,y1:ty-ry-6,x2:cx,y2:ty-ry-34});put('fU',cx+58,ty-ry-20);
+  const am=ty+hh/2;
+  set('aL',{x1:cx-w-36,y1:am,x2:cx-w-8,y2:am});set('aR',{x1:cx+w+36,y1:am,x2:cx+w+8,y2:am});
+  put('fR',Math.max(52,cx-w-62),am+30);
+  const V=Math.PI*r*r*h,d=Math.PI*(r*r-2*r*h);
+  $('vh').textContent=h.toFixed(1);$('vr').textContent=r.toFixed(1);
+  $('oV').textContent=V.toFixed(1);$('oD').textContent=d.toFixed(2);$('oS').textContent=Math.abs(d)<1e-6?'tetap':sign(d);
+  note(Math.abs(h-6)<.05&&Math.abs(r-10)<.05
+    ?'Saat \\(h=6,\\ r=10\\): \\(\\frac{dV}{dt}=\\pi(100-120)=-20\\pi\\approx-62{,}83\\) cm³/det. Negatif, jadi volume berkurang.'
+    :'Tekan "Soal" untuk kembali ke \\(h=6,\\ r=10\\). Perhatikan tanda \\(r^2-2rh\\): positif bila \\(r>2h\\), negatif bila \\(r<2h\\). Panah biru: \\(h\\) naik, \\(r\\) menyempit.');
+}
+const stop=play('p',-3,3,.05,u=>{$('h').value=6+u;$('r').value=10-u;draw()},()=>+$('h').value-6);
+['h','r'].forEach(i=>$(i).addEventListener('input',stop));
+$('z').onclick=()=>{stop();$('h').value=6;$('r').value=10;draw()};
+start(draw,['h','r']);
+</script>
+</body></html>

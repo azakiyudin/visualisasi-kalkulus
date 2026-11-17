@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tangga Bersandar</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Tangga 17 m bersandar pada dinding</h1>
+<p class="s">Dasar tangga ditarik menjauh dengan laju konstan 5 m/det. Seberapa cepat bagian atas turun saat 8 m di atas tanah?</p>
+<svg viewBox="0 0 520 460" id="sv" role="img" aria-label="Tangga bersandar pada dinding">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset="1" style="stop-color:var(--sky2)"/></linearGradient>
+    <pattern id="br" width="34" height="16" patternUnits="userSpaceOnUse"><rect width="34" height="16" fill="var(--wall2)"/><path d="M0 0H34M0 8H34M0 0V8M17 8V16" stroke="var(--wallln)" stroke-width="1.2" fill="none"/></pattern>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker>
+  </defs>
+  <rect width="520" height="460" fill="url(#sky)" rx="8"/>
+  <g fill="var(--cloud)" opacity=".85"><ellipse cx="400" cy="90" rx="38" ry="12"/><ellipse cx="425" cy="80" rx="24" ry="12"/><ellipse cx="330" cy="200" rx="30" ry="9"/><ellipse cx="350" cy="193" rx="18" ry="9"/></g>
+  <rect x="20" y="20" width="34" height="400" fill="url(#br)" stroke="var(--wallln)"/>
+  <rect x="0" y="420" width="520" height="40" fill="var(--grass)"/><line x1="0" y1="420" x2="520" y2="420" class="gr"/>
+  <line id="ly" class="d"/><line id="lx" class="d"/>
+  <g id="lad"></g>
+  <g id="ppl" stroke-linecap="round">
+    <line id="pr" stroke="var(--woodd)" stroke-width="2"/>
+    <line id="pl1" stroke="var(--fg)" stroke-width="6"/><line id="pl2" stroke="var(--fg)" stroke-width="6" opacity=".65"/>
+    <line id="pt" stroke="var(--acc)" stroke-width="10"/>
+    <line id="pa" stroke="#e8b98a" stroke-width="4.5"/>
+    <circle id="ph" r="8.5" fill="#f2c9a0" stroke="var(--fg)" stroke-width="1.5"/>
+  </g>
+  <line id="vy" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+  <line id="vx" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+  <foreignObject id="ty" width="100" height="32"><div class="lab">\(y\)</div></foreignObject>
+  <foreignObject id="tx" width="100" height="32"><div class="lab">\(x\)</div></foreignObject>
+  <foreignObject id="fx" width="100" height="32"><div class="lab">\(\frac{dx}{dt}=5\)</div></foreignObject>
+  <foreignObject id="fy" width="100" height="32"><div class="lab">\(\frac{dy}{dt}\)</div></foreignObject>
+  <text x="500" y="36" class="m" text-anchor="end">panjang tangga = 17 m</text>
+</svg>
+<div class="row">
+  <label for="y">y (tinggi)</label>
+  <input type="range" id="y" min="1" max="16.5" step="0.05" value="8">
+  <button id="p">Putar</button><button id="r">Reset (y=8)</button>
+</div>
+<div class="g">
+  <div class="c"><span>\(y\) (m)</span><b id="oy"></b></div>
+  <div class="c"><span>\(x=\sqrt{289-y^2}\) (m)</span><b id="ox"></b></div>
+  <div class="c"><span>\(\frac{dx}{dt}\) (m/det)</span><b id="odx"></b></div>
+  <div class="c"><span>\(\frac{dy}{dt}=-\frac{x}{y}\cdot 5\) (m/det)</span><b id="od"></b></div>
+</div>
+<p class="s" style="margin-top:12px">Dari \(x^2+y^2=17^2\) diturunkan terhadap \(t\): \(\;2x\frac{dx}{dt}+2y\frac{dy}{dt}=0\;\Rightarrow\;\frac{dy}{dt}=-\frac{x}{y}\frac{dx}{dt}\).</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const Lm=17,S=23,X0=54,Y0=420,K=6;
+function draw(){
+  const y=+$('y').value;
+  const x=Math.sqrt(Lm*Lm-y*y),px=X0+x*S,py=Y0-y*S,dx=5,d=-x/y*dx;
+  const L=Lm*S,nx=-((Y0-py)/L)*6,ny=((px-X0)/L)*6;
+  let g=`<line x1="${X0+nx}" y1="${py+ny}" x2="${px+nx}" y2="${Y0+ny}" stroke="var(--woodd)" stroke-width="7" stroke-linecap="round"/>
+<line x1="${X0-nx}" y1="${py-ny}" x2="${px-nx}" y2="${Y0-ny}" stroke="var(--woodd)" stroke-width="7" stroke-linecap="round"/>`;
+  for(let i=1;i<17;i++){const cx=X0+(px-X0)*i/17,cy=py+(Y0-py)*i/17;
+    g+=`<line x1="${cx+nx}" y1="${cy+ny}" x2="${cx-nx}" y2="${cy-ny}" stroke="var(--woodd)" stroke-width="5"/>`}
+  g+=`<line x1="${X0+nx}" y1="${py+ny}" x2="${px+nx}" y2="${Y0+ny}" stroke="var(--wood)" stroke-width="3.5" stroke-linecap="round"/>
+<line x1="${X0-nx}" y1="${py-ny}" x2="${px-nx}" y2="${Y0-ny}" stroke="var(--wood)" stroke-width="3.5" stroke-linecap="round"/>`;
+  $('lad').innerHTML=g;
+  set('ly',{x1:X0,y1:py,x2:X0,y2:Y0});set('lx',{x1:X0,y1:Y0+14,x2:px,y2:Y0+14});
+  put('ty',X0+14,(py+Y0)/2);put('tx',(X0+px)/2,Y0+30);
+  put('fx',px+22,Y0-92);put('fy',X0+44,py-30);
+  const hl=arrowLen(d,K,110)/2;
+  // d<0 => hl<0 => kepala panah di bawah (ujung atas tangga turun)
+  set('vy',{x1:37,y1:py+hl,x2:37,y2:py-hl});
+  set('vx',{x1:px,y1:Y0-70,x2:px+arrowLen(dx,K),y2:Y0-70});
+  // orang menarik dasar tangga dengan tali; kaki melangkah mengikuti jarak x
+  const hx=px+56,a=.6*Math.sin(x*3),sa=Math.sin(a),ca=Math.cos(a);
+  set('pl1',{x1:hx,y1:Y0-30,x2:hx+30*sa,y2:Y0-30+30*ca});set('pl2',{x1:hx,y1:Y0-30,x2:hx-30*sa,y2:Y0-30+30*ca});
+  set('pt',{x1:hx,y1:Y0-30,x2:hx,y2:Y0-50});set('ph',{cx:hx,cy:Y0-61});
+  set('pa',{x1:hx,y1:Y0-47,x2:hx-16,y2:Y0-34});set('pr',{x1:hx-16,y1:Y0-34,x2:px+3,y2:Y0-5});
+  $('oy').textContent=y.toFixed(2);$('ox').textContent=x.toFixed(2);
+  $('odx').textContent=dx;$('od').textContent=d.toFixed(3);
+  note(Math.abs(y-8)<.03
+    ?'Saat \\(y=8\\): \\(x=\\sqrt{289-64}=15\\), sehingga \\(\\frac{dy}{dt}=-\\frac{15}{8}(5)=-\\frac{75}{8}\\) m/det. Tanda negatif berarti ujung atas turun.'
+    :'Tekan Reset untuk kembali ke \\(y=8\\) (titik soal). Panah biru memakai skala yang sama: panjangnya sebanding dengan lajunya. Makin rendah ujung atas, makin cepat ia turun (panah dibatasi 110 px bila lajunya sangat besar).');
+}
+// Putar: dasar tangga ditarik dengan laju konstan 5 m/det (x bertambah seragam), y mengikuti
+let tm=null;
+function stop(){clearInterval(tm);tm=null;$('p').textContent='Putar'}
+$('p').onclick=()=>{
+  if(tm){stop();return}
+  let y0=+$('y').value;if(y0<=1.05)y0=16.5;
+  let u=Math.sqrt(Lm*Lm-y0*y0);
+  $('p').textContent='Berhenti';
+  tm=setInterval(()=>{
+    u+=5*0.03*0.4;
+    const y=Math.sqrt(Math.max(Lm*Lm-u*u,0));
+    if(y<=1){$('y').value=1;draw();stop();return}
+    $('y').value=y;draw()},30)};
+$('y').addEventListener('input',stop);
+$('r').onclick=()=>{stop();$('y').value=8;draw()};
+start(draw,['y']);
+</script>
+</body></html>

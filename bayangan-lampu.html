@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bayangan dan Lampu Jalan</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Bayangan orang di bawah lampu jalan</h1>
+<p class="s">Seorang laki-laki setinggi 6 m berjalan dengan laju 3 m/det menuju lampu jalan setinggi 18 m. (a) Seberapa cepat panjang bayangannya berubah? (b) Seberapa cepat ujung bayangannya bergerak?</p>
+<svg viewBox="0 0 520 330" id="sv" role="img" aria-label="Orang berjalan menuju lampu jalan">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset="1" style="stop-color:var(--sky2)"/></linearGradient>
+  <radialGradient id="gl"><stop offset="0" stop-color="#ffe066" stop-opacity=".9"/><stop offset="1" stop-color="#ffe066" stop-opacity="0"/></radialGradient>
+  <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker></defs>
+  <rect width="520" height="330" fill="url(#sky)" rx="8"/>
+  <rect y="260" width="520" height="70" fill="var(--grass)"/><line x1="0" y1="260" x2="520" y2="260" class="gr"/>
+  <line x1="470" y1="260" x2="470" y2="82" stroke="var(--mut)" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="470" cy="80" r="34" fill="url(#gl)"/><circle cx="470" cy="80" r="9" fill="#ffd23f" stroke="#c9a227"/>
+  <line id="ray" stroke="#e0b800" stroke-width="2" stroke-dasharray="6 5"/>
+  <line id="sh" stroke="#000" stroke-opacity=".45" stroke-width="9" stroke-linecap="round"/>
+  <circle id="tp" r="5" fill="var(--lad)"/>
+  <line id="ax" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/><line id="at" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+</svg>
+<div class="row"><label for="x">\(x\) (m)</label><input type="range" id="x" min="3" max="24" step="0.1" value="12"><output id="vx"></output></div>
+<div class="row"><button id="p">Putar</button><span class="s" style="margin:0">Putar: orang berjalan 3 m/det ke lampu</span></div>
+<div class="g">
+  <div class="c"><span>\(s=\frac{x}{2}\) bayangan (m)</span><b id="oS"></b></div>
+  <div class="c"><span>\(x+s\) ujung bayangan (m)</span><b id="oT"></b></div>
+  <div class="c"><span>\(\frac{ds}{dt}\) (m/det)</span><b id="oDs"></b></div>
+  <div class="c"><span>\(\frac{d(x+s)}{dt}\) (m/det)</span><b id="oDt"></b></div>
+</div>
+<p class="s" style="margin-top:12px">Segitiga sebangun: \(\frac{18}{x+s}=\frac{6}{s}\Rightarrow s=\frac{x}{2}\). Dengan \(\frac{dx}{dt}=-3\): \(\frac{ds}{dt}=\frac12(-3)=-\frac32\) dan \(\frac{d(x+s)}{dt}=\frac32(-3)=-\frac92\).</p>
+<p class="s" id="note">(a) Bayangan memendek \(\frac32\) m/det. (b) Ujung bayangan bergerak mendekati lampu dengan laju \(\frac92\) m/det. Jarak \(x\) dan \(s\) diukur dari tiang lampu dan dari kaki orang.</p>
+<script src="base.js"></script>
+<script>
+const S=10,LX=470,GY=260;
+manInit('man');lab('lx','x');lab('ls','s');lab('qa','\\frac{dx}{dt}=-3');lab('qt','\\frac{d(x+s)}{dt}=-\\frac92');
+function draw(){
+  const x=+$('x').value,s=x/2,mx=LX-x*S,tx=LX-1.5*x*S;
+  manPose('man',mx,GY,x*1.4,1,-1);
+  set('ray',{x1:LX,y1:80,x2:tx,y2:GY});set('sh',{x1:tx,y1:GY+2,x2:mx,y2:GY+2});set('tp',{cx:tx,cy:GY});
+  set('ax',{x1:mx-70,y1:GY-84,x2:mx-40,y2:GY-84});put('qa',mx-56,GY-106);
+  set('at',{x1:tx+28,y1:GY+20,x2:tx-2,y2:GY+20});put('qt',tx+80,GY+20);
+  put('lx',(mx+LX)/2,GY-14);put('ls',(tx+mx)/2,GY-14);
+  $('vx').textContent=x.toFixed(1);$('oS').textContent=s.toFixed(2);$('oT').textContent=(1.5*x).toFixed(2);
+  $('oDs').textContent='-1.5';$('oDt').textContent='-4.5';
+}
+let tm=null;
+function stop(){clearInterval(tm);tm=null;$('p').textContent='Putar'}
+$('p').onclick=()=>{
+  if(tm){stop();return}
+  $('p').textContent='Berhenti';if(+$('x').value<=3.1)$('x').value=24;
+  tm=setInterval(()=>{let v=+$('x').value-.08;if(v<=3){v=3;stop()}$('x').value=v;draw()},30)};
+$('x').addEventListener('input',stop);
+start(draw,['x']);
+</script>
+</body></html>

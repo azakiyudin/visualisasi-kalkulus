@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jarum Menit</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Luas sektor jarum menit</h1>
+<p class="s">Jarum menit sepanjang 4 cm mulai dari posisi tegak lurus (arah angka 12). Seberapa cepat luas sektor yang dilalui jarum bertambah?</p>
+<svg viewBox="0 0 520 330" id="sv" role="img" aria-label="Jam dengan sektor">
+  <defs><radialGradient id="fc"><stop offset="0" stop-color="var(--face)"/><stop offset="1" style="stop-color:var(--m3)"/></radialGradient></defs>
+  <circle cx="260" cy="165" r="152" fill="var(--mut)" opacity=".35"/>
+  <circle cx="260" cy="165" r="148" fill="url(#fc)" stroke="var(--fg)" stroke-width="4"/>
+  <path id="sc" fill="var(--lad)" fill-opacity=".3" stroke="var(--lad)" stroke-width="2"/>
+  <g id="tk"></g>
+  <line id="hh" stroke="var(--fg)" stroke-width="8" stroke-linecap="round"/>
+  <line id="hd" stroke="var(--lad)" stroke-width="5" stroke-linecap="round"/>
+  <circle id="tp" r="6" fill="var(--lad)"/>
+  <circle cx="260" cy="165" r="8" fill="var(--fg)"/><circle cx="260" cy="165" r="3" fill="var(--lad)"/>
+  <text id="lb" class="t" text-anchor="middle" style="fill:var(--fg);font-weight:600">4 cm</text>
+</svg>
+<div class="row"><label for="m">waktu</label><input type="range" id="m" min="0" max="60" step="0.1" value="15"><output id="vm"></output><button id="p">Putar</button></div>
+<div class="g">
+  <div class="c"><span>\(\alpha\) (derajat)</span><b id="oT"></b></div>
+  <div class="c"><span>\(A=\frac{16\pi}{360^\circ}\alpha\) (cm²)</span><b id="oA"></b></div>
+  <div class="c"><span>\(\frac{dA}{dt}\) (cm²/menit)</span><b id="oD"></b></div>
+</div>
+<p class="s" style="margin-top:12px">Luas juring \(A=\frac{\alpha}{360^\circ}\pi r^2=\frac{16\pi}{360^\circ}\alpha\). Jarum menit menempuh \(360^\circ\) dalam 60 menit, jadi \(\frac{d\alpha}{dt}=6^\circ\)/menit. Maka \(\frac{dA}{dt}=\frac{16\pi}{360^\circ}\cdot\frac{d\alpha}{dt}=\frac{16\pi}{360}\cdot6=\frac{4\pi}{15}\).</p>
+<p class="s" id="note">\(\frac{dA}{dt}=\frac{4\pi}{15}\approx0{,}838\) cm²/menit, konstan di setiap saat. Geser waktu: luasnya naik beraturan sampai \(16\pi\) cm² (satu lingkaran penuh) pada menit ke-60.</p>
+<script src="base.js"></script>
+<script>
+const cx=260,cy=165,R=128;
+(function(){let s='';
+  for(let i=0;i<60;i++){const a=i*Math.PI/30,big=i%5==0,r1=big?132:138;
+    s+=`<line x1="${cx+r1*Math.sin(a)}" y1="${cy-r1*Math.cos(a)}" x2="${cx+144*Math.sin(a)}" y2="${cy-144*Math.cos(a)}" stroke="var(--fg)" stroke-opacity="${big?.9:.45}" stroke-width="${big?2.5:1}"/>`}
+  for(let n=1;n<=12;n++){const a=n*Math.PI/6;
+    s+=`<text x="${cx+110*Math.sin(a)}" y="${cy-110*Math.cos(a)}" text-anchor="middle" dominant-baseline="central" fill="var(--fg)" font-size="17" font-weight="600">${n}</text>`}
+  $('tk').innerHTML=s})();
+function draw(){
+  const m=+$('m').value,th=Math.min(m*Math.PI/30,2*Math.PI-1e-4),x=cx+R*Math.sin(th),y=cy-R*Math.cos(th);
+  const ha=m*Math.PI/360;
+  set('sc',{d:`M${cx},${cy} L${cx},${cy-R} A${R},${R} 0 ${th>Math.PI?1:0} 1 ${x},${y} Z`});
+  set('hd',{x1:cx,y1:cy,x2:x,y2:y});set('tp',{cx:x,cy:y});
+  set('hh',{x1:cx,y1:cy,x2:cx+70*Math.sin(ha),y2:cy-70*Math.cos(ha)});
+  const mx=cx+R*.55*Math.sin(th),my=cy-R*.55*Math.cos(th),nx=-Math.cos(th),ny=-Math.sin(th);
+  set('lb',{x:mx+nx*-26+0,y:my+ny*-26+5});
+  $('vm').textContent=m.toFixed(1)+' menit';
+  $('oT').textContent=(6*m).toFixed(1)+'°';$('oA').textContent=(16*Math.PI/360*6*m).toFixed(3);
+  $('oD').textContent=(4*Math.PI/15).toFixed(3);
+}
+const stop=play('p',0,60,.2,u=>{$('m').value=u;draw()},()=>+$('m').value);
+$('m').addEventListener('input',stop);
+start(draw,['m']);
+</script>
+</body></html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kubus Mengembang</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Kubus yang volumenya bertambah</h1>
+<p class="s">Pada suatu saat setiap sisi kubus 5 cm dan volumenya bertambah dengan laju 2 cm³/menit. Seberapa cepat luas permukaan kubus bertambah? (Satuan laju volume pada buku tertulis cm/menit; diperlakukan sebagai cm³/menit.)</p>
+<svg viewBox="0 0 520 330" id="sv" role="img" aria-label="Kubus">
+  <defs><pattern id="gp" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--mut)" stroke-opacity=".18"/></pattern>
+  <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker></defs>
+  <rect width="520" height="330" fill="var(--card)" rx="8"/><rect width="520" height="330" fill="url(#gp)" rx="8"/>
+  <polygon id="ft" fill="var(--m1)" stroke="var(--fg)" stroke-width="2"/>
+  <polygon id="tp" fill="var(--m2)" stroke="var(--fg)" stroke-width="2"/>
+  <polygon id="sd" fill="var(--m3)" stroke="var(--fg)" stroke-width="2"/>
+  <line id="a1" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/><line id="a2" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/></svg>
+<div class="row"><label for="s">\(s\) (cm)</label><input type="range" id="s" min="1" max="9" step="0.05" value="5"><output id="vs"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Reset (s=5)</button><span class="s" style="margin:0">Putar: volume bertambah tetap 2 cm³/menit</span></div>
+<div class="g">
+  <div class="c"><span>\(V=s^3\) (cm³)</span><b id="oV"></b></div>
+  <div class="c"><span>\(\frac{ds}{dt}=\frac{2}{3s^2}\) (cm/menit)</span><b id="oDs"></b></div>
+  <div class="c"><span>\(L=6s^2\) (cm²)</span><b id="oL"></b></div>
+  <div class="c"><span>\(\frac{dL}{dt}=\frac{8}{s}\) (cm²/menit)</span><b id="oDl"></b></div>
+</div>
+<p class="s" style="margin-top:12px">\(V=s^3\Rightarrow\frac{dV}{dt}=3s^2\frac{ds}{dt}=2\Rightarrow\frac{ds}{dt}=\frac{2}{3s^2}\). \(L=6s^2\Rightarrow\frac{dL}{dt}=12s\frac{ds}{dt}=12s\cdot\frac{2}{3s^2}=\frac{8}{s}\).</p>
+<p class="s" id="note"></p>
+<script src="base.js"></script>
+<script>
+const S=24,X=80,Y=290,D=.5;
+lab('ls','s');lab('lq','\\frac{dV}{dt}=2');
+function draw(){
+  const s=+$('s').value,w=s*S,ox=w*D,oy=w*D*.6;
+  const pts=(a)=>a.map(p=>p.join(',')).join(' ');
+  set('ft',{points:pts([[X,Y],[X+w,Y],[X+w,Y-w],[X,Y-w]])});
+  set('tp',{points:pts([[X,Y-w],[X+w,Y-w],[X+w+ox,Y-w-oy],[X+ox,Y-w-oy]])});
+  set('sd',{points:pts([[X+w,Y],[X+w+ox,Y-oy],[X+w+ox,Y-w-oy],[X+w,Y-w]])});
+  put('ls',X+w/2,Y+22);
+  set('a1',{x1:X+w+ox+10,y1:Y-w/2,x2:X+w+ox+40,y2:Y-w/2});set('a2',{x1:X+w/2,y1:Y-w-oy-6,x2:X+w/2,y2:Y-w-oy-34});
+  put('lq',X+w+ox+80,Y-w/2);
+  $('vs').textContent=s.toFixed(2);$('oV').textContent=(s**3).toFixed(2);$('oDs').textContent=(2/(3*s*s)).toFixed(5);
+  $('oL').textContent=(6*s*s).toFixed(2);$('oDl').textContent=(8/s).toFixed(4);
+  note(Math.abs(s-5)<.03?'Saat \\(s=5\\): \\(\\frac{ds}{dt}=\\frac{2}{75}\\), sehingga \\(\\frac{dL}{dt}=12(5)\\frac{2}{75}=\\frac{8}{5}=1{,}6\\) cm²/menit.'
+    :'Tekan Reset untuk kembali ke \\(s=5\\). Volume tambah tetap, tetapi sisinya makin lambat bertambah karena kubus makin besar.');
+}
+let tm=null;
+function stop(){clearInterval(tm);tm=null;$('p').textContent='Putar'}
+$('p').onclick=()=>{
+  if(tm){stop();return}
+  $('p').textContent='Berhenti';let s=+$('s').value;if(s>=8.95)s=1;let V=s**3;
+  tm=setInterval(()=>{V+=2.2;s=Math.cbrt(V);if(s>=9){s=9;stop()}$('s').value=s;draw()},30)};
+$('s').addEventListener('input',stop);$('z').onclick=()=>{stop();$('s').value=5;draw()};
+start(draw,['s']);
+</script>
+</body></html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pesawat Menanjak</title><link rel="stylesheet" href="base.css"></head>
+<body>
+<h1>Pesawat naik dengan sudut 30°</h1>
+<p class="s">Pesawat naik dengan sudut \(30^\circ\) terhadap bidang horizontal. Berapa cepat ketinggian pesawat naik jika kecepatannya 500 mil/jam?</p>
+<svg viewBox="0 0 520 360" id="sv" role="img" aria-label="Pesawat menanjak 30 derajat">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset="1" style="stop-color:var(--sky2)"/></linearGradient>
+  <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0L12,6L0,12z" fill="var(--acc)"/></marker></defs>
+  <rect width="520" height="360" fill="url(#sky)" rx="8"/>
+  <rect y="320" width="520" height="40" fill="var(--grass)"/><line x1="0" y1="320" x2="520" y2="320" class="gr"/>
+  <line id="gl" stroke="var(--mut)" stroke-width="2" stroke-dasharray="4 5"/>
+  <line id="hl" stroke="var(--mut)" stroke-width="2" stroke-dasharray="4 5"/>
+  <line id="sl" stroke="var(--fg)" stroke-width="2.5"/>
+  <path id="ar" fill="none" stroke="var(--acc)" stroke-width="2"/>
+  <path id="sq" fill="none" stroke="var(--mut)" stroke-width="1.5"/>
+  <g id="pl"></g>
+  <line id="vs" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/><line id="vh" stroke="var(--acc)" stroke-width="3" marker-end="url(#a)"/>
+</svg>
+<div class="row"><label for="s">\(s\) (mil)</label><input type="range" id="s" min="20" max="200" step="1" value="100"><output id="vv"></output></div>
+<div class="row"><button id="p">Putar</button><button id="z">Reset</button><span class="s" style="margin:0">Putar: pesawat melaju tetap 500 mil/jam</span></div>
+<div class="g">
+  <div class="c"><span>\(h=\frac12 s\) (mil)</span><b id="oH"></b></div>
+  <div class="c"><span>\(\frac{ds}{dt}\) (mil/jam)</span><b>500</b></div>
+  <div class="c"><span>\(\frac{dh}{dt}=\frac12\frac{ds}{dt}\) (mil/jam)</span><b>250</b></div>
+</div>
+<p class="s" style="margin-top:12px">\(h=s\sin30^\circ=\frac12 s\Rightarrow\frac{dh}{dt}=\frac12\frac{ds}{dt}=\frac12(500)=250\) mil/jam. Sudut lintasan tetap, jadi perbandingan \(h:s\) selalu \(1:2\) di mana pun pesawat berada.</p>
+<p class="s" id="note">Ketinggian naik 250 mil/jam, tepat setengah kecepatan pesawat, untuk setiap posisi \(s\).</p>
+<script src="base.js"></script>
+<script>
+const OX=50,GY=320,SC=1.6,C=Math.cos(Math.PI/6),SN=.5;
+lab('ls','s');lab('lh','h');lab('lt','30^\\circ');lab('qs','\\frac{ds}{dt}=500');lab('qh','\\frac{dh}{dt}=250');
+asset("pl","planeSide");
+function draw(){
+  const s=+$('s').value,px=OX+s*SC*C,py=GY-s*SC*SN;
+  set('pl',{transform:`translate(${px},${py}) rotate(-30)`});
+  set('sl',{x1:OX,y1:GY,x2:px,y2:py});set('gl',{x1:OX,y1:GY,x2:px,y2:GY});set('hl',{x1:px,y1:GY,x2:px,y2:py});
+  set('ar',{d:`M${OX+46},${GY} A46 46 0 0 0 ${OX+46*C},${GY-46*SN}`});
+  set('sq',{d:`M${px-12},${GY} L${px-12},${GY-12} L${px},${GY-12}`});
+  const vs=arrowLen(500,.12,70);
+  set('vs',{x1:px+34*C,y1:py-34*SN,x2:px+34*C+vs*C,y2:py-34*SN-vs*SN});
+  set('vh',{x1:px+40,y1:py+vs*SN/2*1+0,x2:px+40,y2:py+vs*SN/2-arrowLen(250,.12,70)});
+  put('ls',(OX+px)/2-18,(GY+py)/2-18);put('lh',px+16,(GY+py)/2+14);put('lt',OX+78,GY-14);
+  put('qs',px+34*C+vs*C+10,py-34*SN-vs*SN-18);put('qh',px+112,py+vs*SN/2-12);
+  $('vv').textContent=s.toFixed(0);$('oH').textContent=(s/2).toFixed(1);
+}
+let tm=null;
+function stop(){clearInterval(tm);tm=null;$('p').textContent='Putar'}
+$('p').onclick=()=>{
+  if(tm){stop();return}
+  $('p').textContent='Berhenti';if(+$('s').value>=195)$('s').value=20;
+  tm=setInterval(()=>{let v=+$('s').value+.8;if(v>=200){v=200;stop()}$('s').value=v;draw()},30)};
+$('s').addEventListener('input',stop);$('z').onclick=()=>{stop();$('s').value=100;draw()};
+start(draw,['s']);
+</script>
+</body></html>
